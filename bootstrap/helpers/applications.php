@@ -373,3 +373,82 @@ function clone_application(Application $source, $destination, array $overrides =
 
     return $newApplication;
 }
+
+function removeOldBackupsFromS3ForApplications($backup): void
+{
+    try {
+        if (! $backup->save_s3 || ! $backup->s3 || ! $backup->executions) {
+            return;
+        }
+
+        $s3BackupsToDelete = deleteOldApplicationBackupsFromS3($backup);
+        if ($s3BackupsToDelete->isNotEmpty()) {
+            $backup->executions()
+                ->whereIn('id', $s3BackupsToDelete->pluck('id'))
+                ->update(['s3_storage_deleted' => true]);
+        }
+
+        // Delete execution records where all backup copies are gone
+        $backup->executions()
+            ->where('s3_storage_deleted', true)
+            ->where('created_at', '<', now()->subDays(7))
+            ->delete();
+    } catch (\Throwable $e) {
+        \Illuminate\Support\Facades\Log::error('Failed to remove old application backups from S3', [
+            'backup_id' => $backup->uuid,
+            'error' => $e->getMessage(),
+        ]);
+    }
+}
+
+function deleteOldApplicationBackupsFromS3($backup)
+{
+    $executions = $backup->executions()->where('s3_storage_deleted', false)->where('status', 'success')->get();
+    $backupsToDelete = collect([]);
+
+    // Policy 1: Delete by count (keep N most recent backups)
+    $retentionAmount = data_get($backup, 'application_backup_retention_amount_s3', 0);
+    if ($retentionAmount > 0 && $executions->count() > $retentionAmount) {
+        $sortedByDate = $executions->sortByDesc('created_at');
+        $toDelete = $sortedByDate->slice($retentionAmount);
+        $backupsToDelete = $backupsToDelete->concat($toDelete);
+    }
+
+    // Policy 2: Delete by age (delete backups older than N days)
+    $retentionDays = data_get($backup, 'application_backup_retention_days_s3', 0);
+    if ($retentionDays > 0) {
+        $cutoffDate = now()->subDays($retentionDays);
+        $tooOld = $executions->where('created_at', '<', $cutoffDate);
+        $backupsToDelete = $backupsToDelete->concat($tooOld);
+    }
+
+    // Policy 3: Delete by max storage (delete oldest backups until total size < N GB)
+    $retentionMaxStorage = data_get($backup, 'application_backup_retention_max_storage_s3', 0);
+    if ($retentionMaxStorage > 0) {
+        // Convert GB to bytes (stored as decimal with 7 places)
+        $maxStorageBytes = $retentionMaxStorage * 1024 * 1024 * 1024;
+        $totalSize = $executions->sum('size');
+
+        if ($totalSize > $maxStorageBytes) {
+            $sortedOldestFirst = $executions->sortBy('created_at');
+            $currentSize = $totalSize;
+
+            foreach ($sortedOldestFirst as $execution) {
+                if ($currentSize <= $maxStorageBytes) {
+                    break;
+                }
+                $backupsToDelete->push($execution);
+                $currentSize -= data_get($execution, 'size', 0);
+            }
+        }
+    }
+
+    // Remove duplicates and get unique files to delete
+    $filesToDelete = $backupsToDelete->unique('id')->pluck('filename');
+
+    if ($filesToDelete->isNotEmpty()) {
+        deleteBackupsS3($filesToDelete, $backup->s3);
+    }
+
+    return $backupsToDelete->unique('id');
+}

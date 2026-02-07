@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -141,6 +142,8 @@ class User extends Authenticatable implements SendsEmail
                         $team->members()->detach($user->id);
                     }
                 }
+                // Remove project permissions for this user
+                removeUserProjectPermissions($user->id);
             });
         });
     }
@@ -473,5 +476,50 @@ class User extends Authenticatable implements SendsEmail
     public function hasPassword(): bool
     {
         return ! empty($this->password);
+    }
+
+    /**
+     * Get accessible projects for a specific team
+     * Respects configuration-based project permissions
+     */
+    public function accessibleProjects(int $teamId): Collection
+    {
+        // Admins/owners see all projects
+        if ($this->isAdminOfTeam($teamId)) {
+            return Project::where('team_id', $teamId)->get();
+        }
+
+        // Check if user has restrictions
+        $allowedIds = getAllowedProjectIds($teamId, $this->id);
+
+        if (empty($allowedIds)) {
+            // No restrictions - return all team projects
+            return Project::where('team_id', $teamId)->get();
+        }
+
+        // Restricted access - return only allowed projects
+        return Project::where('team_id', $teamId)
+            ->whereIn('id', $allowedIds)
+            ->get();
+    }
+
+    /**
+     * Check if user has restricted project access for a team
+     */
+    public function hasRestrictedProjectAccess(int $teamId): bool
+    {
+        if ($this->isAdminOfTeam($teamId)) {
+            return false;
+        }
+
+        return hasRestrictedProjectAccess($teamId, $this->id);
+    }
+
+    /**
+     * Get restricted project IDs for a team
+     */
+    public function restrictedProjectIds(int $teamId): array
+    {
+        return getAllowedProjectIds($teamId, $this->id);
     }
 }

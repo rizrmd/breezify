@@ -52,4 +52,7 @@ $app->singleton(
 |
 */
 
+// Load custom helper functions
+require_once __DIR__.'/helpers/project-permissions.php';
+
 return $app;

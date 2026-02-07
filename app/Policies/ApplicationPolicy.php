@@ -151,4 +151,16 @@ class ApplicationPolicy
         */
         return true;
     }
+
+    /**
+     * Determine whether the user can manage backups.
+     */
+    public function manageBackups(User $user, Application $application): bool
+    {
+        // Authorization temporarily disabled
+        /*
+        return $user->isAdmin() && $user->teams->contains('id', $application->team()->first()->id);
+        */
+        return true;
+    }
 }

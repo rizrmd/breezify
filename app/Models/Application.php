@@ -895,6 +895,11 @@ class Application extends BaseModel
         return $this->hasMany(ScheduledTask::class)->orderBy('name', 'asc');
     }
 
+    public function scheduledBackups()
+    {
+        return $this->morphMany(ScheduledApplicationBackup::class, 'application');
+    }
+
     public function private_key()
     {
         return $this->belongsTo(PrivateKey::class);

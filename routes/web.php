@@ -81,6 +81,7 @@ use App\Livewire\Tags\Show as TagsShow;
 use App\Livewire\Team\AdminView as TeamAdminView;
 use App\Livewire\Team\Index as TeamIndex;
 use App\Livewire\Team\Member\Index as TeamMemberIndex;
+use App\Livewire\Team\TeamMemberProjectAccess;
 use App\Livewire\Terminal\Index as TerminalIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Providers\RouteServiceProvider;
@@ -152,6 +153,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', TeamIndex::class)->name('team.index');
         Route::get('/members', TeamMemberIndex::class)->name('team.member.index');
         Route::get('/admin', TeamAdminView::class)->name('team.admin-view');
+        Route::get('/members/{member}/project-access', TeamMemberProjectAccess::class)->name('team.member.project-access');
     });
 
     Route::get('/terminal', TerminalIndex::class)->name('terminal')->middleware('can.access.terminal');

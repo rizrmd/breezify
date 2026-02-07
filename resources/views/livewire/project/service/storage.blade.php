@@ -282,7 +282,8 @@
             $hasVolumes = $this->volumeCount > 0;
             $hasFiles = $this->fileCount > 0;
             $hasDirectories = $this->directoryCount > 0;
-            $defaultTab = $hasVolumes ? 'volumes' : ($hasFiles ? 'files' : 'directories');
+            $hasBackups = $this->hasBackups;
+            $defaultTab = $hasVolumes ? 'volumes' : ($hasFiles ? 'files' : ($hasDirectories ? 'directories' : 'backups'));
         @endphp
 
         @if ($hasVolumes || $hasFiles || $hasDirectories)
@@ -312,6 +313,14 @@
                         class="px-4 py-2 -mb-px font-medium transition-colors {{ $hasDirectories ? 'dark:text-neutral-400 dark:hover:text-white text-neutral-600 hover:text-black cursor-pointer' : 'opacity-50 cursor-not-allowed' }} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coollabs dark:focus-visible:ring-warning focus-visible:ring-offset-2 dark:focus-visible:ring-offset-coolgray-100">
                         Directories ({{ $this->directoryCount }})
                     </button>
+                    @if ($hasBackups)
+                        <button @click="activeTab = 'backups'"
+                            :class="activeTab === 'backups' ? 'border-b-2 dark:border-white border-black' :
+                                'border-b-2 border-transparent'"
+                            class="px-4 py-2 -mb-px font-medium transition-colors dark:text-neutral-400 dark:hover:text-white text-neutral-600 hover:text-black cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coollabs dark:focus-visible:ring-warning focus-visible:ring-offset-2 dark:focus-visible:ring-offset-coolgray-100">
+                            Backups ({{ $this->backupsCount }})
+                        </button>
+                    @endif
                 </div>
 
                 {{-- Tab Content --}}
@@ -354,6 +363,14 @@
                             </div>
                         @endif
                     </div>
+
+                    {{-- Backups Tab --}}
+                    @if ($hasBackups)
+                        <div x-show="activeTab === 'backups'" class="flex flex-col gap-4">
+                            <livewire:project.application.backup-schedule :application="$resource" />
+                            <livewire:project.application.backup-executions-list :application="$resource" />
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -372,7 +389,8 @@
                 $hasVolumes = $this->volumeCount > 0;
                 $hasFiles = $this->fileCount > 0;
                 $hasDirectories = $this->directoryCount > 0;
-                $defaultTab = $hasVolumes ? 'volumes' : ($hasFiles ? 'files' : 'directories');
+                $hasBackups = $this->hasBackups;
+                $defaultTab = $hasVolumes ? 'volumes' : ($hasFiles ? 'files' : ($hasDirectories ? 'directories' : 'backups'));
             @endphp
 
             @if ($hasVolumes || $hasFiles || $hasDirectories)
@@ -402,6 +420,14 @@
                             class="px-4 py-2 -mb-px font-medium transition-colors {{ $hasDirectories ? 'dark:text-neutral-400 dark:hover:text-white text-neutral-600 hover:text-black cursor-pointer' : 'opacity-50 cursor-not-allowed' }} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coollabs dark:focus-visible:ring-warning focus-visible:ring-offset-2 dark:focus-visible:ring-offset-coolgray-100">
                             Directories ({{ $this->directoryCount }})
                         </button>
+                        @if ($hasBackups)
+                            <button @click="activeTab = 'backups'"
+                                :class="activeTab === 'backups' ? 'border-b-2 dark:border-white border-black' :
+                                    'border-b-2 border-transparent'"
+                                class="px-4 py-2 -mb-px font-medium transition-colors dark:text-neutral-400 dark:hover:text-white text-neutral-600 hover:text-black cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coollabs dark:focus-visible:ring-warning focus-visible:ring-offset-2 dark:focus-visible:ring-offset-coolgray-100">
+                                Backups ({{ $this->backupsCount }})
+                            </button>
+                        @endif
                     </div>
 
                     {{-- Tab Content --}}
@@ -444,6 +470,14 @@
                                 </div>
                             @endif
                         </div>
+
+                        {{-- Backups Tab --}}
+                        @if ($hasBackups)
+                            <div x-show="activeTab === 'backups'" class="flex flex-col gap-4">
+                                <livewire:project.application.backup-schedule :application="$resource" />
+                                <livewire:project.application.backup-executions-list :application="$resource" />
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endif

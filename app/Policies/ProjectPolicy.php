@@ -20,8 +20,7 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        // return $user->teams->contains('id', $project->team_id);
-        return true;
+        return $project->isAccessibleBy($user);
     }
 
     /**
@@ -29,8 +28,7 @@ class ProjectPolicy
      */
     public function create(User $user): bool
     {
-        // return $user->isAdmin();
-        return true;
+        return $user->isAdminFromSession();
     }
 
     /**
@@ -38,8 +36,7 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $project->team_id);
-        return true;
+        return $project->isAccessibleBy($user) && $user->isAdminOfTeam($project->team_id);
     }
 
     /**
@@ -47,8 +44,7 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $project->team_id);
-        return true;
+        return $project->isAccessibleBy($user) && $user->isAdminOfTeam($project->team_id);
     }
 
     /**
@@ -56,8 +52,7 @@ class ProjectPolicy
      */
     public function restore(User $user, Project $project): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $project->team_id);
-        return true;
+        return $project->isAccessibleBy($user) && $user->isAdminOfTeam($project->team_id);
     }
 
     /**
@@ -65,7 +60,18 @@ class ProjectPolicy
      */
     public function forceDelete(User $user, Project $project): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $project->team_id);
-        return true;
+        return $project->isAccessibleBy($user) && $user->isAdminOfTeam($project->team_id);
+    }
+
+    /**
+     * Determine whether the user can create any resources in this project
+     */
+    public function createAnyResource(User $user, ?Project $project = null): bool
+    {
+        if ($project) {
+            return $project->isAccessibleBy($user) && $user->isAdminOfTeam($project->team_id);
+        }
+
+        return false;
     }
 }

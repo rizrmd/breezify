@@ -95,6 +95,25 @@ class Storage extends Component
         return $this->directories->count();
     }
 
+    public function getHasBackupsProperty()
+    {
+        return $this->resource->getMorphClass() === \App\Models\Application::class;
+    }
+
+    public function getBackupsCountProperty()
+    {
+        if (! $this->hasBackups) {
+            return 0;
+        }
+
+        $scheduledBackup = $this->resource->scheduledBackups()->first();
+        if (! $scheduledBackup) {
+            return 0;
+        }
+
+        return $scheduledBackup->executions()->count();
+    }
+
     public function submitPersistentVolume()
     {
         try {

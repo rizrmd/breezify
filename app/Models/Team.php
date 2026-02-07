@@ -86,6 +86,8 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
             foreach ($s3s as $s3) {
                 $s3->delete();
             }
+            // Remove project permissions for this team
+            removeTeamProjectPermissions($team->id);
         });
     }
 

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 use Visus\Cuid2\Cuid2;
 
@@ -62,6 +64,8 @@ class Project extends BaseModel
             foreach ($shared_variables as $shared_variable) {
                 $shared_variable->delete();
             }
+            // Remove this project from all permissions
+            removeProjectFromPermissions($project->id);
         });
     }
 
@@ -164,5 +168,64 @@ class Project extends BaseModel
         }
 
         return route('project.show', ['project_uuid' => $this->uuid]);
+    }
+
+    /**
+     * Check if project is accessible by user
+     * Respects configuration-based project permissions
+     */
+    public function isAccessibleBy(User $user): bool
+    {
+        // 1. User must be member of project's team
+        if ($user->teams()->where('teams.id', $this->team_id)->doesntExist()) {
+            return false;
+        }
+
+        // 2. Team admins/owners always have access
+        if ($user->isAdminOfTeam($this->team_id)) {
+            return true;
+        }
+
+        // 3. Check configuration-based permissions
+        return canUserAccessProject($this->team_id, $user->id, $this->id);
+    }
+
+    /**
+     * Get users with access to this project
+     */
+    public function accessibleUsers(): Collection
+    {
+        $team = $this->team;
+        $allMembers = $team->members;
+
+        return $allMembers->filter(function ($user) {
+            return $this->isAccessibleBy($user);
+        });
+    }
+
+    /**
+     * Scope: Get projects accessible by current user
+     * Respects configuration-based project permissions
+     */
+    public function scopeAccessibleBy(Builder $query, User $user): Builder
+    {
+        $currentTeam = currentTeam();
+
+        // Admins/owners see all projects
+        if ($user->isAdminOfTeam($currentTeam->id)) {
+            return $query->where('team_id', $currentTeam->id);
+        }
+
+        // Check if user has restricted access
+        $allowedIds = getAllowedProjectIds($currentTeam->id, $user->id);
+
+        if (empty($allowedIds)) {
+            // No restrictions - return all team projects
+            return $query->where('team_id', $currentTeam->id);
+        }
+
+        // Restricted access - return only allowed projects
+        return $query->where('team_id', $currentTeam->id)
+            ->whereIn('id', $allowedIds);
     }
 }

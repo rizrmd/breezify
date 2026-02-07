@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\ScheduledApplicationBackup;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledTask;
 use App\Models\Server;
@@ -62,11 +63,21 @@ class ScheduledJobManager implements ShouldQueue
         // Freeze the execution time at the start of the job
         $this->executionTime = Carbon::now();
 
-        // Process backups - don't let failures stop task processing
+        // Process database backups - don't let failures stop task processing
         try {
-            $this->processScheduledBackups();
+            $this->processScheduledDatabaseBackups();
         } catch (\Exception $e) {
-            Log::channel('scheduled-errors')->error('Failed to process scheduled backups', [
+            Log::channel('scheduled-errors')->error('Failed to process scheduled database backups', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+
+        // Process application backups - don't let failures stop task processing
+        try {
+            $this->processScheduledApplicationBackups();
+        } catch (\Exception $e) {
+            Log::channel('scheduled-errors')->error('Failed to process scheduled application backups', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -93,7 +104,7 @@ class ScheduledJobManager implements ShouldQueue
         }
     }
 
-    private function processScheduledBackups(): void
+    private function processScheduledDatabaseBackups(): void
     {
         $backups = ScheduledDatabaseBackup::with(['database'])
             ->where('enabled', true)
@@ -102,7 +113,7 @@ class ScheduledJobManager implements ShouldQueue
         foreach ($backups as $backup) {
             try {
                 // Apply the same filtering logic as the original
-                if (! $this->shouldProcessBackup($backup)) {
+                if (! $this->shouldProcessDatabaseBackup($backup)) {
                     continue;
                 }
 
@@ -122,7 +133,47 @@ class ScheduledJobManager implements ShouldQueue
                     DatabaseBackupJob::dispatch($backup);
                 }
             } catch (\Exception $e) {
-                Log::channel('scheduled-errors')->error('Error processing backup', [
+                Log::channel('scheduled-errors')->error('Error processing database backup', [
+                    'backup_id' => $backup->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    private function processScheduledApplicationBackups(): void
+    {
+        $backups = ScheduledApplicationBackup::with(['application'])
+            ->where('enabled', true)
+            ->get();
+
+        foreach ($backups as $backup) {
+            try {
+                if (! $this->shouldProcessApplicationBackup($backup)) {
+                    continue;
+                }
+
+                $server = $backup->server();
+                if (! $server) {
+                    continue;
+                }
+
+                $serverTimezone = data_get($server->settings, 'server_timezone', config('app.timezone'));
+
+                if (validate_timezone($serverTimezone) === false) {
+                    $serverTimezone = config('app.timezone');
+                }
+
+                $frequency = $backup->frequency;
+                if (isset(VALID_CRON_STRINGS[$frequency])) {
+                    $frequency = VALID_CRON_STRINGS[$frequency];
+                }
+
+                if ($this->shouldRunNow($frequency, $serverTimezone)) {
+                    ApplicationBackupJob::dispatch($backup);
+                }
+            } catch (\Exception $e) {
+                Log::channel('scheduled-errors')->error('Error processing application backup', [
                     'backup_id' => $backup->id,
                     'error' => $e->getMessage(),
                 ]);
@@ -166,9 +217,35 @@ class ScheduledJobManager implements ShouldQueue
         }
     }
 
-    private function shouldProcessBackup(ScheduledDatabaseBackup $backup): bool
+    private function shouldProcessDatabaseBackup(ScheduledDatabaseBackup $backup): bool
     {
         if (blank(data_get($backup, 'database'))) {
+            $backup->delete();
+
+            return false;
+        }
+
+        $server = $backup->server();
+        if (blank($server)) {
+            $backup->delete();
+
+            return false;
+        }
+
+        if ($server->isFunctional() === false) {
+            return false;
+        }
+
+        if (isCloud() && data_get($server->team->subscription, 'stripe_invoice_paid', false) === false && $server->team->id !== 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function shouldProcessApplicationBackup(ScheduledApplicationBackup $backup): bool
+    {
+        if (blank(data_get($backup, 'application'))) {
             $backup->delete();
 
             return false;
