@@ -79,6 +79,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - Update changelog
+- Update changelog
 
 ### 🧪 Testing
 
@@ -100,6 +101,7 @@ All notable changes to this project will be documented in this file.
 - Use breezify CDN in installer
 - Fix installer upgrade script path
 - Point installer images to breezify
+- Publish images under breezify
 
 ## [4.0.0-beta.462] - 2026-01-16
 
