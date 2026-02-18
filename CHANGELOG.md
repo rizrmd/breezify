@@ -72,6 +72,11 @@ All notable changes to this project will be documented in this file.
 
 - *(api)* Improve app endpoint deprecation description
 - Record verification results
+- Update changelog
+
+### 🧪 Testing
+
+- Fix shared server access setup
 
 ### ⚙️ Miscellaneous Tasks
 
