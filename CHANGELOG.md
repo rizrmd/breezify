@@ -76,6 +76,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - Fix breezify install url
+- Update changelog
 
 ### 🧪 Testing
 
@@ -94,6 +95,7 @@ All notable changes to this project will be documented in this file.
 - Improve pr quality workflow
 - Delete label removal workflow
 - Commit working tree changes
+- Use breezify CDN in installer
 
 ## [4.0.0-beta.462] - 2026-01-16
 
