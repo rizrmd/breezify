@@ -59,6 +59,7 @@ All notable changes to this project will be documented in this file.
 - *(labels)* Make sure name is slugified
 - *(parser)* Replace dashes and dots in auto generated envs
 - *(docs)* Update documentation link for Openclaw service
+- Escape upgrade compose command
 
 ### 💼 Other
 
@@ -76,6 +77,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - Fix breezify install url
+- Update changelog
 - Update changelog
 - Update changelog
 - Update changelog
