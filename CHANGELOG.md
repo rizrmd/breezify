@@ -80,6 +80,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - Update changelog
+- Update changelog
 
 ### 🧪 Testing
 
@@ -102,6 +103,7 @@ All notable changes to this project will be documented in this file.
 - Fix installer upgrade script path
 - Point installer images to breezify
 - Publish images under breezify
+- Remove dockerhub publishing
 
 ## [4.0.0-beta.462] - 2026-01-16
 
