@@ -1630,6 +1630,15 @@ class DatabasesController extends Controller
                 return response()->json(['message' => 'Public port already used by another database.'], 400);
             }
         }
+        if (blank($request->limits_cpus) || blank($request->limits_memory)) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => [
+                    'limits_cpus' => 'This field is required.',
+                    'limits_memory' => 'This field is required.',
+                ],
+            ], 422);
+        }
         $validator = customApiValidator($request->all(), [
             'name' => 'string|max:255',
             'description' => 'string|nullable',
@@ -1641,11 +1650,11 @@ class DatabasesController extends Controller
             'destination_uuid' => 'string',
             'is_public' => 'boolean',
             'public_port' => 'numeric|nullable',
-            'limits_memory' => 'string',
+            'limits_memory' => 'string|required',
             'limits_memory_swap' => 'string',
             'limits_memory_swappiness' => 'numeric',
             'limits_memory_reservation' => 'string',
-            'limits_cpus' => 'string',
+            'limits_cpus' => 'string|required',
             'limits_cpuset' => 'string|nullable',
             'limits_cpu_shares' => 'numeric',
             'instant_deploy' => 'boolean',

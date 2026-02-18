@@ -18,6 +18,14 @@ class DockerImage extends Component
 
     public string $imageSha256 = '';
 
+    public string $limitsCpus = '0';
+
+    public string $limitsMemory = '0';
+
+    public float $maxCpus = 1.0;
+
+    public float $maxMemoryGb = 1.0;
+
     public array $parameters;
 
     public array $query;
@@ -26,6 +34,7 @@ class DockerImage extends Component
     {
         $this->parameters = get_route_parameters();
         $this->query = request()->query();
+        $this->resolveResourceCaps();
     }
 
     /**
@@ -86,6 +95,8 @@ class DockerImage extends Component
             'imageName' => ['required', 'string'],
             'imageTag' => ['nullable', 'string', 'regex:/^[a-z0-9][a-z0-9._-]*$/i'],
             'imageSha256' => ['nullable', 'string', 'regex:/^[a-f0-9]{64}$/i'],
+            'limitsCpus' => ['required', 'numeric', 'min:0', 'max:'.$this->maxCpus],
+            'limitsMemory' => ['required', 'numeric', 'min:0', 'max:'.$this->maxMemoryGb],
         ]);
 
         // Validate that either tag or sha256 is provided, but not both
@@ -145,6 +156,8 @@ class DockerImage extends Component
             'environment_id' => $environment->id,
             'destination_id' => $destination->id,
             'destination_type' => $destination_class,
+            'limits_cpus' => (string) $this->limitsCpus,
+            'limits_memory' => $this->formatMemoryLimit($this->limitsMemory),
             'health_check_enabled' => false,
         ]);
 
@@ -159,6 +172,33 @@ class DockerImage extends Component
             'environment_uuid' => $environment->uuid,
             'project_uuid' => $project->uuid,
         ]);
+    }
+
+    private function resolveResourceCaps(): void
+    {
+        $destinationUuid = data_get($this->query, 'destination');
+        if (! $destinationUuid) {
+            return;
+        }
+        $destination = StandaloneDocker::where('uuid', $destinationUuid)->first() ?? SwarmDocker::where('uuid', $destinationUuid)->first();
+        if (! $destination) {
+            return;
+        }
+        $limits = resolve_server_resource_limits($destination->server);
+        $this->maxCpus = (float) data_get($limits, 'cpus', 1);
+        $this->maxMemoryGb = (float) data_get($limits, 'memory_gb', 1);
+    }
+
+    private function formatMemoryLimit(string $value): string
+    {
+        $normalized = (float) $value;
+        if ($normalized <= 0) {
+            return '0';
+        }
+
+        $formatted = rtrim(rtrim(number_format($normalized, 2, '.', ''), '0'), '.');
+
+        return $formatted.'g';
     }
 
     public function render()

@@ -21,6 +21,14 @@ class PublicGitRepository extends Component
 
     public int $port = 3000;
 
+    public string $limitsCpus = '0';
+
+    public string $limitsMemory = '0';
+
+    public float $maxCpus = 1.0;
+
+    public float $maxMemoryGb = 1.0;
+
     public string $type;
 
     public $parameters;
@@ -63,22 +71,14 @@ class PublicGitRepository extends Component
 
     public bool $new_compose_services = false;
 
-    protected $rules = [
-        'repository_url' => ['required', 'string'],
-        'port' => 'required|numeric',
-        'isStatic' => 'required|boolean',
-        'publish_directory' => 'nullable|string',
-        'build_pack' => 'required|string',
-        'base_directory' => 'nullable|string',
-        'docker_compose_location' => 'nullable|string',
-    ];
-
     protected function rules()
     {
         return [
             'repository_url' => ['required', 'string', new ValidGitRepositoryUrl],
             'port' => 'required|numeric',
             'isStatic' => 'required|boolean',
+            'limitsCpus' => 'required|numeric|min:0|max:'.$this->maxCpus,
+            'limitsMemory' => 'required|numeric|min:0|max:'.$this->maxMemoryGb,
             'publish_directory' => 'nullable|string',
             'build_pack' => 'required|string',
             'base_directory' => 'nullable|string',
@@ -92,6 +92,8 @@ class PublicGitRepository extends Component
         'port' => 'port',
         'isStatic' => 'static',
         'publish_directory' => 'publish directory',
+        'limitsCpus' => 'cpus',
+        'limitsMemory' => 'memory',
         'build_pack' => 'build pack',
         'base_directory' => 'base directory',
         'docker_compose_location' => 'docker compose location',
@@ -105,6 +107,7 @@ class PublicGitRepository extends Component
         }
         $this->parameters = get_route_parameters();
         $this->query = request()->query();
+        $this->resolveResourceCaps();
     }
 
     public function updatedBuildPack()
@@ -327,6 +330,8 @@ class PublicGitRepository extends Component
                     'publish_directory' => $this->publish_directory,
                     'environment_id' => $environment->id,
                     'destination_id' => $destination->id,
+                    'limits_cpus' => (string) $this->limitsCpus,
+                    'limits_memory' => $this->formatMemoryLimit($this->limitsMemory),
                     'destination_type' => $destination_class,
                     'build_pack' => $this->build_pack,
                     'base_directory' => $this->base_directory,
@@ -340,6 +345,8 @@ class PublicGitRepository extends Component
                     'publish_directory' => $this->publish_directory,
                     'environment_id' => $environment->id,
                     'destination_id' => $destination->id,
+                    'limits_cpus' => (string) $this->limitsCpus,
+                    'limits_memory' => $this->formatMemoryLimit($this->limitsMemory),
                     'destination_type' => $destination_class,
                     'source_id' => $this->git_source->id,
                     'source_type' => $this->git_source->getMorphClass(),
@@ -377,5 +384,32 @@ class PublicGitRepository extends Component
         } catch (\Throwable $e) {
             return handleError($e, $this);
         }
+    }
+
+    private function resolveResourceCaps(): void
+    {
+        $destinationUuid = data_get($this->query, 'destination');
+        if (! $destinationUuid) {
+            return;
+        }
+        $destination = StandaloneDocker::where('uuid', $destinationUuid)->first() ?? SwarmDocker::where('uuid', $destinationUuid)->first();
+        if (! $destination) {
+            return;
+        }
+        $limits = resolve_server_resource_limits($destination->server);
+        $this->maxCpus = (float) data_get($limits, 'cpus', 1);
+        $this->maxMemoryGb = (float) data_get($limits, 'memory_gb', 1);
+    }
+
+    private function formatMemoryLimit(string $value): string
+    {
+        $normalized = (float) $value;
+        if ($normalized <= 0) {
+            return '0';
+        }
+
+        $formatted = rtrim(rtrim(number_format($normalized, 2, '.', ''), '0'), '.');
+
+        return $formatted.'g';
     }
 }

@@ -14,6 +14,14 @@ class SimpleDockerfile extends Component
 {
     public string $dockerfile = '';
 
+    public string $limitsCpus = '0';
+
+    public string $limitsMemory = '0';
+
+    public float $maxCpus = 1.0;
+
+    public float $maxMemoryGb = 1.0;
+
     public array $parameters;
 
     public array $query;
@@ -22,6 +30,7 @@ class SimpleDockerfile extends Component
     {
         $this->parameters = get_route_parameters();
         $this->query = request()->query();
+        $this->resolveResourceCaps();
         if (isDev()) {
             $this->dockerfile = 'FROM nginx
 EXPOSE 80
@@ -34,6 +43,8 @@ CMD ["nginx", "-g", "daemon off;"]
     {
         $this->validate([
             'dockerfile' => 'required',
+            'limitsCpus' => 'required|numeric|min:0|max:'.$this->maxCpus,
+            'limitsMemory' => 'required|numeric|min:0|max:'.$this->maxMemoryGb,
         ]);
         $destination_uuid = $this->query['destination'];
         $destination = StandaloneDocker::where('uuid', $destination_uuid)->first();
@@ -59,6 +70,8 @@ CMD ["nginx", "-g", "daemon off;"]
             'git_branch' => 'main',
             'build_pack' => 'dockerfile',
             'dockerfile' => $this->dockerfile,
+            'limits_cpus' => (string) $this->limitsCpus,
+            'limits_memory' => $this->formatMemoryLimit($this->limitsMemory),
             'ports_exposes' => $port,
             'environment_id' => $environment->id,
             'destination_id' => $destination->id,
@@ -81,5 +94,32 @@ CMD ["nginx", "-g", "daemon off;"]
             'environment_uuid' => $environment->uuid,
             'project_uuid' => $project->uuid,
         ]);
+    }
+
+    private function resolveResourceCaps(): void
+    {
+        $destinationUuid = data_get($this->query, 'destination');
+        if (! $destinationUuid) {
+            return;
+        }
+        $destination = StandaloneDocker::where('uuid', $destinationUuid)->first() ?? SwarmDocker::where('uuid', $destinationUuid)->first();
+        if (! $destination) {
+            return;
+        }
+        $limits = resolve_server_resource_limits($destination->server);
+        $this->maxCpus = (float) data_get($limits, 'cpus', 1);
+        $this->maxMemoryGb = (float) data_get($limits, 'memory_gb', 1);
+    }
+
+    private function formatMemoryLimit(string $value): string
+    {
+        $normalized = (float) $value;
+        if ($normalized <= 0) {
+            return '0';
+        }
+
+        $formatted = rtrim(rtrim(number_format($normalized, 2, '.', ''), '0'), '.');
+
+        return $formatted.'g';
     }
 }

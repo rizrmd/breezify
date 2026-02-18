@@ -86,7 +86,23 @@ class InstanceSettings extends Model
 
     public static function get()
     {
-        return once(fn () => InstanceSettings::findOrFail(0));
+        return once(function () {
+            $settings = InstanceSettings::find(0);
+            if ($settings) {
+                return $settings;
+            }
+
+            return InstanceSettings::create([
+                'id' => 0,
+                'is_registration_enabled' => true,
+                'is_api_enabled' => isDev(),
+                'smtp_enabled' => true,
+                'smtp_host' => 'coolify-mail',
+                'smtp_port' => 1025,
+                'smtp_from_address' => 'hi@localhost.com',
+                'smtp_from_name' => 'Coolify',
+            ]);
+        });
     }
 
     // public function getRecipients($notification)

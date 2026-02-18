@@ -50,6 +50,14 @@ class GithubPrivateRepository extends Component
 
     public int $port = 3000;
 
+    public string $limitsCpus = '0';
+
+    public string $limitsMemory = '0';
+
+    public float $maxCpus = 1.0;
+
+    public float $maxMemoryGb = 1.0;
+
     public bool $is_static = false;
 
     public ?string $publish_directory = null;
@@ -66,11 +74,17 @@ class GithubPrivateRepository extends Component
 
     public bool $show_is_static = true;
 
+    protected $validationAttributes = [
+        'limitsCpus' => 'cpus',
+        'limitsMemory' => 'memory',
+    ];
+
     public function mount()
     {
         $this->currentRoute = Route::currentRouteName();
         $this->parameters = get_route_parameters();
         $this->query = request()->query();
+        $this->resolveResourceCaps();
         $this->repositories = $this->branches = collect();
         $this->github_apps = GithubApp::private();
     }
@@ -153,6 +167,11 @@ class GithubPrivateRepository extends Component
     public function submit()
     {
         try {
+            $this->validate([
+                'limitsCpus' => 'required|numeric|min:0|max:'.$this->maxCpus,
+                'limitsMemory' => 'required|numeric|min:0|max:'.$this->maxMemoryGb,
+            ]);
+
             // Validate git repository parts and branch
             $validator = validator([
                 'selected_repository_owner' => $this->selected_repository_owner,
@@ -188,6 +207,8 @@ class GithubPrivateRepository extends Component
                 'git_branch' => str($this->selected_branch_name)->trim()->toString(),
                 'build_pack' => $this->build_pack,
                 'ports_exposes' => $this->port,
+                'limits_cpus' => (string) $this->limitsCpus,
+                'limits_memory' => $this->formatMemoryLimit($this->limitsMemory),
                 'publish_directory' => $this->publish_directory,
                 'base_directory' => $this->base_directory,
                 'environment_id' => $environment->id,
@@ -219,6 +240,33 @@ class GithubPrivateRepository extends Component
         } catch (\Throwable $e) {
             return handleError($e, $this);
         }
+    }
+
+    private function resolveResourceCaps(): void
+    {
+        $destinationUuid = data_get($this->query, 'destination');
+        if (! $destinationUuid) {
+            return;
+        }
+        $destination = StandaloneDocker::where('uuid', $destinationUuid)->first() ?? SwarmDocker::where('uuid', $destinationUuid)->first();
+        if (! $destination) {
+            return;
+        }
+        $limits = resolve_server_resource_limits($destination->server);
+        $this->maxCpus = (float) data_get($limits, 'cpus', 1);
+        $this->maxMemoryGb = (float) data_get($limits, 'memory_gb', 1);
+    }
+
+    private function formatMemoryLimit(string $value): string
+    {
+        $normalized = (float) $value;
+        if ($normalized <= 0) {
+            return '0';
+        }
+
+        $formatted = rtrim(rtrim(number_format($normalized, 2, '.', ''), '0'), '.');
+
+        return $formatted.'g';
     }
 
     public function instantSave()

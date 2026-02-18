@@ -105,6 +105,37 @@
                             helper="If your application is a static site or the final build assets should be served as a static site, enable this." />
                     </div>
                 @endif
+                <div class="pt-4">
+                    <h2>Resource Limits</h2>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label class="flex items-center gap-2 text-sm font-medium">
+                                Number of CPUs
+                                <span class="text-xs text-neutral-500">(max {{ $maxCpus }})</span>
+                            </label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" min="0" max="{{ $maxCpus }}" step="0.1" wire:model.live="limitsCpus"
+                                    class="w-full accent-purple-500" required />
+                                <div class="w-24 text-right text-sm">
+                                    {{ number_format((float) $limitsCpus, 1) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="flex items-center gap-2 text-sm font-medium">
+                                Maximum Memory Limit (GB)
+                                <span class="text-xs text-neutral-500">(max {{ $maxMemoryGb }})</span>
+                            </label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" min="0" max="{{ $maxMemoryGb }}" step="0.1" wire:model.live="limitsMemory"
+                                    class="w-full accent-purple-500" required />
+                                <div class="w-24 text-right text-sm">
+                                    {{ number_format((float) $limitsMemory, 1) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <x-forms.button type="submit" class="mt-4">
                     Continue
                 </x-forms.button>

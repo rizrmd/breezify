@@ -3520,3 +3520,25 @@ function downsampleLTTB(array $data, int $threshold): array
 
     return $sampled;
 }
+
+function resolve_server_resource_limits(Server $server): array
+{
+    try {
+        $cpuOutput = instant_remote_process(['nproc'], $server);
+        $memoryOutput = instant_remote_process(["awk '/MemTotal/ {print $2}' /proc/meminfo"], $server);
+
+        $cpuCores = (int) trim((string) $cpuOutput);
+        $memoryKb = (int) trim((string) $memoryOutput);
+        $memoryGb = $memoryKb > 0 ? $memoryKb / 1024 / 1024 : 0;
+
+        return [
+            'cpus' => max($cpuCores, 1),
+            'memory_gb' => max(round($memoryGb, 1), 1),
+        ];
+    } catch (\Throwable $e) {
+        return [
+            'cpus' => 1,
+            'memory_gb' => 1,
+        ];
+    }
+}

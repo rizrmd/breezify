@@ -51,6 +51,14 @@ class Select extends Component
 
     public ?string $existingPostgresqlUrl = null;
 
+    public string $limitsCpus = '0';
+
+    public string $limitsMemory = '0';
+
+    public float $maxCpus = 1.0;
+
+    public float $maxMemoryGb = 1.0;
+
     protected $queryString = [
         'server_id',
         'type' => ['except' => ''],
@@ -81,6 +89,7 @@ class Select extends Component
                 $this->destination_uuid = $queryDestination;
                 $this->server = Server::find($queryServerId);
                 $this->current_step = 'select-postgresql-type';
+                $this->prepareResourceLimits();
             }
         } catch (\Exception $e) {
             return handleError($e, $this);
@@ -351,6 +360,24 @@ class Select extends Component
     public function setPostgresqlType(string $type)
     {
         $this->postgresql_type = $type;
+        $this->prepareResourceLimits();
+        $this->current_step = 'resource-limits';
+    }
+
+    public function whatToDoNext()
+    {
+        if ($this->type === 'postgresql') {
+            $this->current_step = 'select-postgresql-type';
+
+            return;
+        }
+
+        if (in_array($this->type, DATABASE_TYPES, true)) {
+            $this->prepareResourceLimits();
+            $this->current_step = 'resource-limits';
+
+            return;
+        }
 
         return redirect()->route('project.resource.create', [
             'project_uuid' => $this->parameters['project_uuid'],
@@ -358,23 +385,62 @@ class Select extends Component
             'type' => $this->type,
             'destination' => $this->destination_uuid,
             'server_id' => $this->server_id,
-            'database_image' => $this->postgresql_type,
         ]);
     }
 
-    public function whatToDoNext()
+    public function submitResourceLimits()
     {
+        $this->validate([
+            'limitsCpus' => 'required|numeric|min:0|max:'.$this->maxCpus,
+            'limitsMemory' => 'required|numeric|min:0|max:'.$this->maxMemoryGb,
+        ]);
+
+        $payload = [
+            'project_uuid' => $this->parameters['project_uuid'],
+            'environment_uuid' => $this->parameters['environment_uuid'],
+            'type' => $this->type,
+            'destination' => $this->destination_uuid,
+            'server_id' => $this->server_id,
+            'limits_cpus' => (string) $this->limitsCpus,
+            'limits_memory' => $this->formatMemoryLimit($this->limitsMemory),
+        ];
+
         if ($this->type === 'postgresql') {
-            $this->current_step = 'select-postgresql-type';
-        } else {
-            return redirect()->route('project.resource.create', [
-                'project_uuid' => $this->parameters['project_uuid'],
-                'environment_uuid' => $this->parameters['environment_uuid'],
-                'type' => $this->type,
-                'destination' => $this->destination_uuid,
-                'server_id' => $this->server_id,
-            ]);
+            $payload['database_image'] = $this->postgresql_type;
         }
+
+        return redirect()->route('project.resource.create', $payload);
+    }
+
+    private function prepareResourceLimits(): void
+    {
+        if (! $this->server) {
+            return;
+        }
+
+        $limits = resolve_server_resource_limits($this->server);
+        $this->maxCpus = (float) data_get($limits, 'cpus', 1);
+        $this->maxMemoryGb = (float) data_get($limits, 'memory_gb', 1);
+
+        if ($this->limitsCpus === '') {
+            $this->limitsCpus = '0';
+        }
+
+        if ($this->limitsMemory === '') {
+            $this->limitsMemory = '0';
+        }
+    }
+
+    private function formatMemoryLimit(string $value): string
+    {
+        $normalized = (float) $value;
+        if ($normalized <= 0) {
+            return '0';
+        }
+
+        $formatted = rtrim(rtrim(number_format($normalized, 2, '.', ''), '0'), '.');
+
+        return $formatted.'g';
     }
 
     public function loadServers()

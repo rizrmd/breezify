@@ -20,6 +20,8 @@ class Create extends Component
         $destination_uuid = request()->query('destination');
         $server_id = request()->query('server_id');
         $database_image = request()->query('database_image');
+        $limitsCpus = request()->query('limits_cpus');
+        $limitsMemory = request()->query('limits_memory');
 
         $project = currentTeam()->load(['projects'])->projects->where('uuid', request()->route('project_uuid'))->first();
         if (! $project) {
@@ -34,6 +36,15 @@ class Create extends Component
             $services = get_service_templates();
 
             if (in_array($type, DATABASE_TYPES)) {
+                if (blank($limitsCpus) || blank($limitsMemory)) {
+                    $this->dispatch('error', 'CPU and memory limits are required to create a database.');
+
+                    return;
+                }
+                $limitPayload = [
+                    'limits_cpus' => $limitsCpus,
+                    'limits_memory' => $limitsMemory,
+                ];
                 if ($type->value() === 'postgresql') {
                     // PostgreSQL requires database_image to be explicitly set
                     // If not provided, fall through to Select component for version selection
@@ -45,22 +56,23 @@ class Create extends Component
                     $database = create_standalone_postgresql(
                         environmentId: $environment->id,
                         destinationUuid: $destination_uuid,
+                        otherData: $limitPayload,
                         databaseImage: $database_image
                     );
                 } elseif ($type->value() === 'redis') {
-                    $database = create_standalone_redis($environment->id, $destination_uuid);
+                    $database = create_standalone_redis($environment->id, $destination_uuid, $limitPayload);
                 } elseif ($type->value() === 'mongodb') {
-                    $database = create_standalone_mongodb($environment->id, $destination_uuid);
+                    $database = create_standalone_mongodb($environment->id, $destination_uuid, $limitPayload);
                 } elseif ($type->value() === 'mysql') {
-                    $database = create_standalone_mysql($environment->id, $destination_uuid);
+                    $database = create_standalone_mysql($environment->id, $destination_uuid, $limitPayload);
                 } elseif ($type->value() === 'mariadb') {
-                    $database = create_standalone_mariadb($environment->id, $destination_uuid);
+                    $database = create_standalone_mariadb($environment->id, $destination_uuid, $limitPayload);
                 } elseif ($type->value() === 'keydb') {
-                    $database = create_standalone_keydb($environment->id, $destination_uuid);
+                    $database = create_standalone_keydb($environment->id, $destination_uuid, $limitPayload);
                 } elseif ($type->value() === 'dragonfly') {
-                    $database = create_standalone_dragonfly($environment->id, $destination_uuid);
+                    $database = create_standalone_dragonfly($environment->id, $destination_uuid, $limitPayload);
                 } elseif ($type->value() === 'clickhouse') {
-                    $database = create_standalone_clickhouse($environment->id, $destination_uuid);
+                    $database = create_standalone_clickhouse($environment->id, $destination_uuid, $limitPayload);
                 }
 
                 return redirect()->route('project.database.configuration', [

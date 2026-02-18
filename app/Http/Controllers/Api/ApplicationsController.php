@@ -19,8 +19,8 @@ use App\Rules\ValidGitBranch;
 use App\Rules\ValidGitRepositoryUrl;
 use App\Services\DockerImageParser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use OpenApi\Attributes as OA;
 use Spatie\Url\Url;
@@ -1113,6 +1113,8 @@ class ApplicationsController extends Controller
                 $request->offsetSet('ports_exposes', '80');
             }
             $validationRules = array_merge(sharedDataApplications(), $validationRules);
+            $validationRules['limits_memory'] = 'required|string';
+            $validationRules['limits_cpus'] = 'required|string';
             $validationMessages = [
                 'docker_compose_domains.*.array' => 'An item in the docker_compose_domains array has invalid fields. Only a name and domain field are supported.',
             ];
@@ -1304,6 +1306,8 @@ class ApplicationsController extends Controller
                 'docker_compose_domains.*.domain' => 'string|nullable',
             ];
             $validationRules = array_merge(sharedDataApplications(), $validationRules);
+            $validationRules['limits_memory'] = 'required|string';
+            $validationRules['limits_cpus'] = 'required|string';
             $validationMessages = [
                 'docker_compose_domains.*.array' => 'An item in the docker_compose_domains array has invalid fields. Only a name and domain field are supported.',
             ];
@@ -1533,6 +1537,8 @@ class ApplicationsController extends Controller
             ];
 
             $validationRules = array_merge(sharedDataApplications(), $validationRules);
+            $validationRules['limits_memory'] = 'required|string';
+            $validationRules['limits_cpus'] = 'required|string';
             $validationMessages = [
                 'docker_compose_domains.*.array' => 'An item in the docker_compose_domains array has invalid fields. Only a name and domain field are supported.',
             ];
@@ -1718,6 +1724,8 @@ class ApplicationsController extends Controller
                 'dockerfile' => 'string|required',
             ];
             $validationRules = array_merge(sharedDataApplications(), $validationRules);
+            $validationRules['limits_memory'] = 'required|string';
+            $validationRules['limits_cpus'] = 'required|string';
             $validator = customApiValidator($request->all(), $validationRules);
 
             if ($validator->fails()) {
@@ -1827,6 +1835,8 @@ class ApplicationsController extends Controller
                 'ports_exposes' => 'string|regex:/^(\d+)(,\d+)*$/|required',
             ];
             $validationRules = array_merge(sharedDataApplications(), $validationRules);
+            $validationRules['limits_memory'] = 'required|string';
+            $validationRules['limits_cpus'] = 'required|string';
             $validator = customApiValidator($request->all(), $validationRules);
 
             if ($validator->fails()) {
@@ -1954,6 +1964,8 @@ class ApplicationsController extends Controller
                 'docker_compose_raw' => 'string|required',
             ];
             $validationRules = array_merge(sharedDataApplications(), $validationRules);
+            $validationRules['limits_memory'] = 'required|string';
+            $validationRules['limits_cpus'] = 'required|string';
             $validator = customApiValidator($request->all(), $validationRules);
 
             if ($validator->fails()) {

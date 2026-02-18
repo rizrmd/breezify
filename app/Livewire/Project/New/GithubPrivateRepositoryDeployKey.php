@@ -29,6 +29,14 @@ class GithubPrivateRepositoryDeployKey extends Component
 
     public int $port = 3000;
 
+    public string $limitsCpus = '0';
+
+    public string $limitsMemory = '0';
+
+    public float $maxCpus = 1.0;
+
+    public float $maxMemoryGb = 1.0;
+
     public string $type;
 
     public bool $is_static = false;
@@ -57,21 +65,14 @@ class GithubPrivateRepositoryDeployKey extends Component
 
     private ?string $git_repository = null;
 
-    protected $rules = [
-        'repository_url' => ['required', 'string'],
-        'branch' => ['required', 'string'],
-        'port' => 'required|numeric',
-        'is_static' => 'required|boolean',
-        'publish_directory' => 'nullable|string',
-        'build_pack' => 'required|string',
-    ];
-
     protected function rules()
     {
         return [
             'repository_url' => ['required', 'string', new ValidGitRepositoryUrl],
             'branch' => ['required', 'string', new ValidGitBranch],
             'port' => 'required|numeric',
+            'limitsCpus' => 'required|numeric|min:0|max:'.$this->maxCpus,
+            'limitsMemory' => 'required|numeric|min:0|max:'.$this->maxMemoryGb,
             'is_static' => 'required|boolean',
             'publish_directory' => 'nullable|string',
             'build_pack' => 'required|string',
@@ -83,6 +84,8 @@ class GithubPrivateRepositoryDeployKey extends Component
         'branch' => 'Branch',
         'port' => 'Port',
         'is_static' => 'Is static',
+        'limitsCpus' => 'cpus',
+        'limitsMemory' => 'memory',
         'publish_directory' => 'Publish directory',
         'build_pack' => 'Build pack',
     ];
@@ -94,6 +97,7 @@ class GithubPrivateRepositoryDeployKey extends Component
         }
         $this->parameters = get_route_parameters();
         $this->query = request()->query();
+        $this->resolveResourceCaps();
         if (isDev()) {
             $this->private_keys = PrivateKey::where('team_id', currentTeam()->id)->get();
         } else {
@@ -161,6 +165,8 @@ class GithubPrivateRepositoryDeployKey extends Component
                     'git_branch' => $this->branch,
                     'build_pack' => $this->build_pack,
                     'ports_exposes' => $this->port,
+                    'limits_cpus' => (string) $this->limitsCpus,
+                    'limits_memory' => $this->formatMemoryLimit($this->limitsMemory),
                     'publish_directory' => $this->publish_directory,
                     'environment_id' => $environment->id,
                     'destination_id' => $destination->id,
@@ -174,6 +180,8 @@ class GithubPrivateRepositoryDeployKey extends Component
                     'git_branch' => $this->branch,
                     'build_pack' => $this->build_pack,
                     'ports_exposes' => $this->port,
+                    'limits_cpus' => (string) $this->limitsCpus,
+                    'limits_memory' => $this->formatMemoryLimit($this->limitsMemory),
                     'publish_directory' => $this->publish_directory,
                     'environment_id' => $environment->id,
                     'destination_id' => $destination->id,
@@ -207,6 +215,33 @@ class GithubPrivateRepositoryDeployKey extends Component
         } catch (\Throwable $e) {
             return handleError($e, $this);
         }
+    }
+
+    private function resolveResourceCaps(): void
+    {
+        $destinationUuid = data_get($this->query, 'destination');
+        if (! $destinationUuid) {
+            return;
+        }
+        $destination = StandaloneDocker::where('uuid', $destinationUuid)->first() ?? SwarmDocker::where('uuid', $destinationUuid)->first();
+        if (! $destination) {
+            return;
+        }
+        $limits = resolve_server_resource_limits($destination->server);
+        $this->maxCpus = (float) data_get($limits, 'cpus', 1);
+        $this->maxMemoryGb = (float) data_get($limits, 'memory_gb', 1);
+    }
+
+    private function formatMemoryLimit(string $value): string
+    {
+        $normalized = (float) $value;
+        if ($normalized <= 0) {
+            return '0';
+        }
+
+        $formatted = rtrim(rtrim(number_format($normalized, 2, '.', ''), '0'), '.');
+
+        return $formatted.'g';
     }
 
     private function get_git_source()

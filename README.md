@@ -3,7 +3,7 @@
 # Coolify
 An open-source & self-hostable Heroku / Netlify / Vercel alternative. 
 
-![Latest Release Version](https://img.shields.io/badge/dynamic/json?labelColor=grey&color=6366f1&label=Latest%20released%20version&url=https%3A%2F%2Fcdn.coollabs.io%2Fcoolify%2Fversions.json&query=coolify.v4.version&style=for-the-badge
+![Latest Release Version](https://img.shields.io/badge/dynamic/json?labelColor=grey&color=6366f1&label=Latest%20released%20version&url=https%3A%2F%2Fraw.githubusercontent.com%2Frizrmd%2Fbreezify%2Frefs%2Fheads%2Fv4.x%2Fversions.json&query=coolify.v4.version&style=for-the-badge
 ) [![Bounty Issues](https://img.shields.io/static/v1?labelColor=grey&color=6366f1&label=Algora&message=%F0%9F%92%8E+Bounty+issues&style=for-the-badge)](https://console.algora.io/org/coollabsio/bounties/new)
 </div>
 
@@ -22,7 +22,7 @@ For more information, take a look at our landing page at [coolify.io](https://co
 ## Installation
 
 ```bash
-curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/rizrmd/breezify/refs/heads/v4.x/install.sh | bash
 ```
 You can find the installation script source [here](./scripts/install.sh).
 
