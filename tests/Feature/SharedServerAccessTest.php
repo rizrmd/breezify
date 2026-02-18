@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\InstanceSettings;
 use App\Models\Server;
 use App\Models\Team;
 use App\Models\User;
@@ -7,6 +8,10 @@ use App\Policies\ServerPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    InstanceSettings::create(['id' => 0]);
+});
 
 it('includes shared servers in team access when enabled', function () {
     config(['constants.coolify.shared_servers_enabled' => true]);
@@ -51,7 +56,7 @@ it('allows shared server view access via policy when enabled', function () {
 
     $user->load('teams');
 
-    $policy = new ServerPolicy();
+    $policy = new ServerPolicy;
 
     expect($policy->view($user, $server))->toBeTrue();
 });

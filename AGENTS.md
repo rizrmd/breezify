@@ -121,6 +121,9 @@ This repo now supports **optional** server sharing between teams. It is additive
 - **Coverage expectations**: not specified; follow existing test patterns and add tests for changes.
 
 ## Verification Notes (Last Run)
+- `sudo docker exec -t coolify php artisan test --compact tests/Feature/SharedServerAccessTest.php` — ✅ passed (3 tests, 5 assertions).
 - `vendor/bin/pint --dirty --format agent` — ✅ completed locally.
-- `php artisan test --compact tests/Feature/SharedServerAccessTest.php` — ❌ failed: DB host `postgres` not resolvable (Docker not available). Requires Docker dev env (`spin up`) and running tests inside the container (see `./scripts/run test`).
+Setup used for tests:
+- `cp .env.development.example .env` and set `APP_KEY`.
+- `sudo docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`.
 
