@@ -18,7 +18,7 @@ permissions:
 env:
   GITHUB_REGISTRY: ghcr.io
   DOCKER_REGISTRY: docker.io
-  IMAGE_NAME: "coollabsio/coolify-realtime"
+  IMAGE_NAME: "rizrmd/breezify-realtime"
 
 jobs:
   build-push:
@@ -66,7 +66,7 @@ jobs:
           tags: |
             ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }}-${{ matrix.arch }}
             ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }}-${{ matrix.arch }}
-          labels: |
+            breezify.managed=true
             coolify.managed=true
 
   merge-manifest:
