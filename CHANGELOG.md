@@ -73,6 +73,7 @@ All notable changes to this project will be documented in this file.
 - *(api)* Improve app endpoint deprecation description
 - Record verification results
 - Update changelog
+- Update changelog
 
 ### 🧪 Testing
 
@@ -90,6 +91,7 @@ All notable changes to this project will be documented in this file.
 - Do not build or generate changelog on pr-quality changes
 - Improve pr quality workflow
 - Delete label removal workflow
+- Commit working tree changes
 
 ## [4.0.0-beta.462] - 2026-01-16
 
