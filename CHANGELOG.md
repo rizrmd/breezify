@@ -78,6 +78,7 @@ All notable changes to this project will be documented in this file.
 - Fix breezify install url
 - Update changelog
 - Update changelog
+- Update changelog
 
 ### 🧪 Testing
 
@@ -98,6 +99,7 @@ All notable changes to this project will be documented in this file.
 - Commit working tree changes
 - Use breezify CDN in installer
 - Fix installer upgrade script path
+- Point installer images to breezify
 
 ## [4.0.0-beta.462] - 2026-01-16
 
