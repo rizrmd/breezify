@@ -768,7 +768,7 @@ curl -fsSL -L $CDN/docker-compose.prod.yml -o /data/coolify/source/docker-compos
 PID2=$!
 curl -fsSL -L $CDN/.env.production -o /data/coolify/source/.env.production &
 PID3=$!
-curl -fsSL -L $CDN/upgrade.sh -o /data/coolify/source/upgrade.sh &
+curl -fsSL -L $CDN/scripts/upgrade.sh -o /data/coolify/source/upgrade.sh &
 PID4=$!
 
 # Wait for all downloads to complete and check for errors
