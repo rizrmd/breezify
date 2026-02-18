@@ -74,6 +74,8 @@ All notable changes to this project will be documented in this file.
 - Record verification results
 - Update changelog
 - Update changelog
+- Update changelog
+- Fix breezify install url
 
 ### 🧪 Testing
 
