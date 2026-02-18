@@ -119,3 +119,8 @@ This repo now supports **optional** server sharing between teams. It is additive
 - **Run tests**: `php artisan test --compact` (or use `./scripts/run test` for containerized runs).
 - **Formatting**: `vendor/bin/pint --dirty --format agent`.
 - **Coverage expectations**: not specified; follow existing test patterns and add tests for changes.
+
+## Verification Notes (Last Run)
+- `vendor/bin/pint --dirty --format agent` — ✅ completed locally.
+- `php artisan test --compact tests/Feature/SharedServerAccessTest.php` — ❌ failed: DB host `postgres` not resolvable (Docker not available). Requires Docker dev env (`spin up`) and running tests inside the container (see `./scripts/run test`).
+
