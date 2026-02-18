@@ -95,8 +95,7 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
     {
         $serverLimit = Team::serverLimit();
         $team = currentTeam();
-        $servers = $team->servers->count();
-
+        $servers = $team->accessibleServerCount();
         return $servers >= $serverLimit;
     }
 
@@ -111,10 +110,9 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
 
     public function serverOverflow()
     {
-        if ($this->serverLimit() < $this->servers->count()) {
+        if ($this->serverLimit() < $this->accessibleServerCount()) {
             return true;
         }
-
         return false;
     }
 
@@ -241,10 +239,10 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
 
     public function isEmpty()
     {
-        if ($this->projects()->count() === 0 && $this->servers()->count() === 0 && $this->privateKeys()->count() === 0 && $this->sources()->count() === 0) {
+        $serverCount = $this->accessibleServerCount();
+        if ($this->projects()->count() === 0 && $serverCount === 0 && $this->privateKeys()->count() === 0 && $this->sources()->count() === 0) {
             return true;
         }
-
         return false;
     }
 
@@ -257,6 +255,31 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
     {
         return $this->hasMany(Server::class);
     }
+
+    /**
+     * Shared servers assigned through server_team when the feature flag is enabled.
+     */
+    public function sharedServers()
+    {
+        return $this->belongsToMany(Server::class, 'server_team');
+    }
+
+    /**
+     * Servers accessible by this team (owned + shared when enabled).
+     */
+    public function accessibleServers()
+    {
+        return Server::query()->accessibleByTeam($this->id);
+    }
+
+    /**
+     * Count of accessible servers for limit enforcement.
+     */
+    public function accessibleServerCount(): int
+    {
+        return $this->accessibleServers()->count();
+    }
+
 
     public function privateKeys()
     {

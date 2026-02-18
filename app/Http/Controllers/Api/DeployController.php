@@ -66,7 +66,7 @@ class DeployController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $servers = Server::whereTeamId($teamId)->get();
+        $servers = Server::query()->accessibleByTeam($teamId)->get();
         $deployments_per_server = ApplicationDeploymentQueue::whereIn('status', ['in_progress', 'queued'])->whereIn('server_id', $servers->pluck('id'))->get()->sortBy('id');
         $deployments_per_server = $deployments_per_server->map(function ($deployment) {
             return $this->removeSensitiveData($deployment);
@@ -217,7 +217,7 @@ class DeployController extends Controller
         }
 
         // Check if the deployment belongs to the user's team
-        $servers = Server::whereTeamId($teamId)->pluck('id');
+        $servers = Server::query()->accessibleByTeam($teamId)->pluck('id');
         if (! $servers->contains($deployment->server_id)) {
             return response()->json(['message' => 'You do not have permission to cancel this deployment.'], 403);
         }
@@ -602,7 +602,7 @@ class DeployController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $servers = Server::whereTeamId($teamId)->get();
+        $servers = Server::query()->accessibleByTeam($teamId)->get();
 
         if (is_null($app_uuid)) {
             return response()->json(['message' => 'Application uuid is required'], 400);

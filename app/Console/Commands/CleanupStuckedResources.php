@@ -40,7 +40,7 @@ class CleanupStuckedResources extends Command
     {
         try {
             $teams = Team::all()->filter(function ($team) {
-                return $team->members()->count() === 0 && $team->servers()->count() === 0;
+                return $team->members()->count() === 0 && $team->accessibleServerCount() === 0;
             });
             foreach ($teams as $team) {
                 $team->delete();

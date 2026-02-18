@@ -28,18 +28,19 @@ class ServerLimitCheckJob implements ShouldBeEncrypted, ShouldQueue
     public function handle()
     {
         try {
-            $servers = $this->team->servers;
-            $servers_count = $servers->count();
-            $number_of_servers_to_disable = $servers_count - $this->team->limits;
-            if ($number_of_servers_to_disable > 0) {
-                $servers = $servers->sortbyDesc('created_at');
-                $servers_to_disable = $servers->take($number_of_servers_to_disable);
-                $servers_to_disable->each(function ($server) {
+            $servers = $this->team->accessibleServers()->get();
+            $ownedServers = $this->team->servers;
+            $serversCount = $servers->count();
+            $numberOfServersToDisable = $serversCount - $this->team->limits;
+            if ($numberOfServersToDisable > 0) {
+                $ownedServers = $ownedServers->sortByDesc('created_at');
+                $serversToDisable = $ownedServers->take($numberOfServersToDisable);
+                $serversToDisable->each(function ($server) {
                     $server->forceDisableServer();
                     $this->team->notify(new ForceDisabled($server));
                 });
-            } elseif ($number_of_servers_to_disable === 0) {
-                $servers->each(function ($server) {
+            } elseif ($numberOfServersToDisable === 0) {
+                $ownedServers->each(function ($server) {
                     if ($server->isForceDisabled()) {
                         $server->forceEnableServer();
                         $this->team->notify(new ForceEnabled($server));

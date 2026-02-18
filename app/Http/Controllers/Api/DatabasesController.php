@@ -1601,7 +1601,7 @@ class DatabasesController extends Controller
         if (! $environment) {
             return response()->json(['message' => 'You need to provide a valid environment_name or environment_uuid.'], 422);
         }
-        $server = Server::whereTeamId($teamId)->whereUuid($serverUuid)->first();
+        $server = Server::query()->accessibleByTeam($teamId)->whereUuid($serverUuid)->first();
         if (! $server) {
             return response()->json(['message' => 'Server not found.'], 404);
         }

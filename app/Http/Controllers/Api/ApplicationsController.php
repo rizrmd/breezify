@@ -1083,7 +1083,7 @@ class ApplicationsController extends Controller
         if (! $environment) {
             return response()->json(['message' => 'Environment not found.'], 404);
         }
-        $server = Server::whereTeamId($teamId)->whereUuid($serverUuid)->first();
+        $server = Server::query()->accessibleByTeam($teamId)->whereUuid($serverUuid)->first();
         if (! $server) {
             return response()->json(['message' => 'Server not found.'], 404);
         }

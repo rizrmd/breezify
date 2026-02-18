@@ -284,7 +284,26 @@ class Server extends BaseModel
     }
 
     /**
+     * Scope servers accessible by team, optionally including shared servers when enabled.
+     */
+    public function scopeAccessibleByTeam(Builder $query, int $teamId): Builder
+    {
+        if (! config('constants.coolify.shared_servers_enabled')) {
+            return $query->whereTeamId($teamId);
+        }
+
+        return $query->where(function ($query) use ($teamId) {
+            $query->where('team_id', $teamId)
+                ->orWhereHas('sharedTeams', function ($query) use ($teamId) {
+                    $query->where('teams.id', $teamId);
+                });
+        });
+    }
+
+
+    /**
      * Get query builder for servers owned by current team.
+     * When shared servers are enabled, this also includes shared access from server_team.
      * If you need all servers without further query chaining, use ownedByCurrentTeamCached() instead.
      */
     public static function ownedByCurrentTeam(array $select = ['*'])
@@ -292,7 +311,7 @@ class Server extends BaseModel
         $teamId = currentTeam()->id;
         $selectArray = collect($select)->concat(['id']);
 
-        return Server::whereTeamId($teamId)->with('settings', 'swarmDockers', 'standaloneDockers')->select($selectArray->all())->orderBy('name');
+        return Server::query()->accessibleByTeam($teamId)->with('settings', 'swarmDockers', 'standaloneDockers')->select($selectArray->all())->orderBy('name');
     }
 
     /**
@@ -630,7 +649,7 @@ $schema://$host {
 
     public static function buildServers($teamId)
     {
-        return Server::whereTeamId($teamId)->whereRelation('settings', 'is_reachable', true)->whereRelation('settings', 'is_build_server', true);
+        return Server::query()->accessibleByTeam($teamId)->whereRelation('settings', 'is_reachable', true)->whereRelation('settings', 'is_build_server', true);
     }
 
     public function isForceDisabled()
@@ -987,6 +1006,16 @@ $schema://$host {
     {
         return $this->belongsTo(CloudProviderToken::class);
     }
+
+    /**
+     * Teams with shared access to this server (feature-flagged).
+     */
+
+    public function sharedTeams()
+    {
+        return $this->belongsToMany(Team::class, 'server_team');
+    }
+
 
     public function sslCertificates()
     {

@@ -37,7 +37,7 @@ class ResourceOperations extends Component
         $this->projectUuid = data_get($parameters, 'project_uuid');
         $this->environmentUuid = data_get($parameters, 'environment_uuid');
         $this->projects = Project::ownedByCurrentTeamCached();
-        $this->servers = currentTeam()->servers->filter(fn ($server) => ! $server->isBuildServer());
+        $this->servers = currentTeam()->accessibleServers()->get()->filter(fn ($server) => ! $server->isBuildServer());
     }
 
     public function toggleVolumeCloning(bool $value)

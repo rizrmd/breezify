@@ -78,7 +78,7 @@ class ServersController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $servers = ModelsServer::whereTeamId($teamId)->select('id', 'name', 'uuid', 'ip', 'user', 'port', 'description')->get()->load(['settings'])->map(function ($server) {
+        $servers = ModelsServer::query()->accessibleByTeam($teamId)->select('id', 'name', 'uuid', 'ip', 'user', 'port', 'description')->get()->load(['settings'])->map(function ($server) {
             $server['is_reachable'] = $server->settings->is_reachable;
             $server['is_usable'] = $server->settings->is_usable;
 
@@ -140,7 +140,7 @@ class ServersController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $server = ModelsServer::whereTeamId($teamId)->whereUuid(request()->uuid)->first();
+        $server = ModelsServer::query()->accessibleByTeam($teamId)->whereUuid(request()->uuid)->first();
         if (is_null($server)) {
             return response()->json(['message' => 'Server not found.'], 404);
         }
@@ -220,7 +220,7 @@ class ServersController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $server = ModelsServer::whereTeamId($teamId)->whereUuid(request()->uuid)->first();
+        $server = ModelsServer::query()->accessibleByTeam($teamId)->whereUuid(request()->uuid)->first();
         if (is_null($server)) {
             return response()->json(['message' => 'Server not found.'], 404);
         }
@@ -653,7 +653,7 @@ class ServersController extends Controller
                 'errors' => $errors,
             ], 422);
         }
-        $server = ModelsServer::whereTeamId($teamId)->whereUuid($request->uuid)->first();
+        $server = ModelsServer::query()->accessibleByTeam($teamId)->whereUuid($request->uuid)->first();
         if (! $server) {
             return response()->json(['message' => 'Server not found.'], 404);
         }
@@ -745,7 +745,7 @@ class ServersController extends Controller
         if (! $request->uuid) {
             return response()->json(['message' => 'Uuid is required.'], 422);
         }
-        $server = ModelsServer::whereTeamId($teamId)->whereUuid($request->uuid)->first();
+        $server = ModelsServer::query()->accessibleByTeam($teamId)->whereUuid($request->uuid)->first();
 
         if (! $server) {
             return response()->json(['message' => 'Server not found.'], 404);
@@ -823,7 +823,7 @@ class ServersController extends Controller
         if (! $request->uuid) {
             return response()->json(['message' => 'Uuid is required.'], 422);
         }
-        $server = ModelsServer::whereTeamId($teamId)->whereUuid($request->uuid)->first();
+        $server = ModelsServer::query()->accessibleByTeam($teamId)->whereUuid($request->uuid)->first();
 
         if (! $server) {
             return response()->json(['message' => 'Server not found.'], 404);
