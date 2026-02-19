@@ -112,6 +112,7 @@ All notable changes to this project will be documented in this file.
 - *(parser)* Replace dashes and dots in auto generated envs
 - Stop database proxy when is_public changes to false (#8138)
 - *(docs)* Update documentation link for Openclaw service
+- Remove duplicate Http facade import
 
 ### 💼 Other
 
@@ -141,6 +142,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - *(api)* Improve app endpoint deprecation description
+- Update changelog
 
 ### 🧪 Testing
 
