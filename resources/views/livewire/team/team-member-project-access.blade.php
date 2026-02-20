@@ -5,8 +5,8 @@
     </div>
 
     <!-- Access Status Indicator -->
-    <div class="mb-6 p-4 rounded-lg border @if($member->hasRestrictedProjectAccess($team->id)) border-warning-200 bg-warning-50 dark:bg-warning-900/20 @else border-success-200 bg-success-50 dark:bg-success-900/20 @endif">
-        @if($member->hasRestrictedProjectAccess($team->id))
+    <div class="mb-6 p-4 rounded-lg border @if($restrictAccess) border-warning-200 bg-warning-50 dark:bg-warning-900/20 @else border-success-200 bg-success-50 dark:bg-success-900/20 @endif">
+        @if($restrictAccess)
             <div class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-warning-600 dark:text-warning-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -33,16 +33,42 @@
         @endif
     </div>
 
+    @if(! $member->isAdminOfTeam($team->id))
+        <div class="mb-6 flex items-center justify-between gap-4">
+            <div>
+                <p class="text-sm font-medium text-gray-200">Enable project restrictions</p>
+                <p class="text-xs text-gray-400 mt-1">Turn on to select which projects this member may access.</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" wire:model.live="restrictAccess" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 rounded-full transition peer-checked:bg-blue-600 dark:bg-gray-700"></div>
+                <span class="absolute left-1 top-1 h-4 w-4 bg-white rounded-full transition peer-checked:translate-x-5"></span>
+            </label>
+
+            </label>
+        </div>
+    @endif
+
     <!-- Project Selection Form -->
     <form wire:submit="save">
+        @php
+            $restrictionDisabled = !$restrictAccess || $member->isAdminOfTeam($team->id);
+        @endphp
+
+        @if(!$restrictAccess && ! $member->isAdminOfTeam($team->id))
+            <div class="mb-4 text-sm text-gray-400">
+                Restrictions are disabled. Enable them above to choose specific projects.
+            </div>
+        @endif
+
         <div class="space-y-3">
             @foreach($allProjects as $project)
-                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors @if(in_array($project->id, $selectedProjectIds)) bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 @endif">
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors @if(in_array($project->id, $selectedProjectIds)) bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 @endif @if($restrictionDisabled) opacity-60 cursor-not-allowed @endif">
                     <input
                         type="checkbox"
                         value="{{ $project->id }}"
                         wire:model.live="selectedProjectIds"
-                        @if($member->isAdminOfTeam($team->id))
+                        @if($restrictionDisabled)
                             disabled
                         @endif
                         class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
@@ -79,7 +105,11 @@
         @if(!$member->isAdminOfTeam($team->id) && $allProjects->isNotEmpty())
             <div class="mt-6 flex items-center justify-between">
                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                    <span class="font-medium">{{ count($selectedProjectIds) }}</span> of {{ $allProjects->count() }} projects selected
+                    @if($restrictAccess)
+                        <span class="font-medium">{{ count($selectedProjectIds) }}</span> of {{ $allProjects->count() }} projects selected
+                    @else
+                        Restrictions disabled
+                    @endif
                 </div>
                 <x-forms.button type="submit">
                     Save Project Access

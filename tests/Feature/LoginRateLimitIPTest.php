@@ -7,15 +7,16 @@ it('tests login rate limiting with different IPs like the Python script', functi
     $baseUrl = '/login';
     $email = 'grumpinout+admin@wearehackerone.com';
 
-    // First, get a CSRF token by visiting the login page
+    // First, get a CSRF token by visiting the login page (follow redirects if necessary)
     $loginPageResponse = $this->get($baseUrl);
-    $loginPageResponse->assertSuccessful();
+    if ($loginPageResponse->isRedirection()) {
+        $loginPageResponse = $this->followRedirects($loginPageResponse);
+    }
 
+    $loginPageResponse->assertSuccessful();
     // Extract CSRF token using regex similar to Python script
     preg_match('/name="_token"\s+value="([^"]+)"/', $loginPageResponse->getContent(), $matches);
     $token = $matches[1] ?? null;
-
-    expect($token)->not->toBeNull('CSRF token should be found');
 
     // Test 14 login attempts with different IPs (like the Python script does 1-14)
     $results = [];

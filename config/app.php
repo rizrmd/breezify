@@ -141,8 +141,8 @@ return [
     */
 
     'maintenance' => [
-        'driver' => 'cache',
-        'store' => 'redis',
+        'driver' => env('MAINTENANCE_DRIVER', 'cache'),
+        'store' => env('MAINTENANCE_STORE', 'redis'),
     ],
 
     /*

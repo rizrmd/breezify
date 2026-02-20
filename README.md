@@ -22,7 +22,7 @@ For more information, take a look at our landing page at [coolify.io](https://co
 ## Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/rizrmd/breezify/v4.x/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/rizrmd/breezify/v4.x/scripts/install.sh | bash -s --
 ```
 You can find the installation script source [here](./scripts/install.sh).
 

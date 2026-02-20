@@ -523,6 +523,13 @@ function sslip(Server $server)
 
 function get_service_templates(bool $force = false): Collection
 {
+    if (app()->runningUnitTests() && function_exists('get_service_templates_mock')) {
+        $mockTemplates = get_service_templates_mock();
+
+        return $mockTemplates instanceof \Illuminate\Support\Collection
+            ? $mockTemplates
+            : collect($mockTemplates);
+    }
 
     if ($force) {
         try {

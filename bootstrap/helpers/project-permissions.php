@@ -1,9 +1,8 @@
 <?php
 
+use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\Project;
-use Illuminate\Support\Collection;
 
 /**
  * Get project permissions configuration
@@ -19,6 +18,7 @@ function getProjectPermissions(): array
         }
 
         $content = file_get_contents($path);
+
         return json_decode($content, true) ?? [];
     });
 }
@@ -33,14 +33,12 @@ function clearProjectPermissionsCache(): void
 }
 
 /**
- * Get allowed project IDs for a user in a team
  * Returns empty array if user has no restrictions (can access all)
- * Returns array of project IDs if user is restricted
+ * Returns array of project IDs (possibly empty) when user is restricted
  */
 function getAllowedProjectIds(int $teamId, int $userId): array
 {
     $permissions = getProjectPermissions();
-
     $key = "{$teamId}_{$userId}";
 
     return $permissions[$key] ?? [];
@@ -51,9 +49,10 @@ function getAllowedProjectIds(int $teamId, int $userId): array
  */
 function hasRestrictedProjectAccess(int $teamId, int $userId): bool
 {
-    $allowedIds = getAllowedProjectIds($teamId, $userId);
+    $permissions = getProjectPermissions();
+    $key = "{$teamId}_{$userId}";
 
-    return count($allowedIds) > 0;
+    return array_key_exists($key, $permissions);
 }
 
 /**
@@ -61,26 +60,23 @@ function hasRestrictedProjectAccess(int $teamId, int $userId): bool
  */
 function canUserAccessProject(int $teamId, int $userId, int $projectId): bool
 {
-    $allowedIds = getAllowedProjectIds($teamId, $userId);
-
-    // Empty array = no restrictions
-    if (empty($allowedIds)) {
+    if (! hasRestrictedProjectAccess($teamId, $userId)) {
         return true;
     }
+
+    $allowedIds = getAllowedProjectIds($teamId, $userId);
 
     return in_array($projectId, $allowedIds);
 }
 
 /**
  * Set allowed projects for a user in a team
- * Replaces existing permissions
+ * Pass null to remove any restrictions (user regains full access)
  */
-function setAllowedProjects(int $teamId, int $userId, array $projectIds): void
+function setAllowedProjects(int $teamId, int $userId, ?array $projectIds): void
 {
     $path = storage_path('app/project-permissions.json');
     $lockPath = storage_path('app/project-permissions.lock');
-
-    // Acquire lock
     $lock = fopen($lockPath, 'w');
     if (! flock($lock, LOCK_EX)) {
         throw new \Exception('Could not acquire lock to update permissions');
@@ -93,20 +89,15 @@ function setAllowedProjects(int $teamId, int $userId, array $projectIds): void
             $content = file_get_contents($path);
             $permissions = json_decode($content, true) ?? [];
         }
-
         // Update permissions
         $key = "{$teamId}_{$userId}";
-
-        if (empty($projectIds)) {
-            // Remove entry if no projects (means no restrictions)
+        if (is_null($projectIds)) {
             unset($permissions[$key]);
         } else {
-            $permissions[$key] = $projectIds;
+            $permissions[$key] = array_values($projectIds);
         }
-
         // Save permissions
         file_put_contents($path, json_encode($permissions, JSON_PRETTY_PRINT));
-
         // Clear cache
         clearProjectPermissionsCache();
     } finally {
@@ -236,12 +227,10 @@ function removeProjectFromPermissions(int $projectId): void
 
         // Remove project ID from all permission entries
         foreach ($permissions as $key => $projectIds) {
-            $permissions[$key] = array_values(array_diff($projectIds, [$projectId]));
-
-            // Remove entry if no projects left
-            if (empty($permissions[$key])) {
-                unset($permissions[$key]);
+            if (! is_array($projectIds)) {
+                continue;
             }
+            $permissions[$key] = array_values(array_diff($projectIds, [$projectId]));
         }
 
         file_put_contents($path, json_encode($permissions, JSON_PRETTY_PRINT));

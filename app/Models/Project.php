@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 use Visus\Cuid2\Cuid2;
@@ -22,6 +23,8 @@ use Visus\Cuid2\Cuid2;
 class Project extends BaseModel
 {
     use ClearsGlobalSearchCache;
+    use HasFactory;
+    use HasSafeStringAttribute;
     use HasSafeStringAttribute;
 
     protected $guarded = [];
@@ -207,25 +210,49 @@ class Project extends BaseModel
      * Scope: Get projects accessible by current user
      * Respects configuration-based project permissions
      */
-    public function scopeAccessibleBy(Builder $query, User $user): Builder
+    public function scopeAccessibleBy(Builder $query, User $user, ?int $teamId = null): Builder
     {
-        $currentTeam = currentTeam();
+        $teamIds = collect();
 
-        // Admins/owners see all projects
-        if ($user->isAdminOfTeam($currentTeam->id)) {
-            return $query->where('team_id', $currentTeam->id);
+        if ($teamId) {
+            $teamIds->push($teamId);
         }
 
-        // Check if user has restricted access
-        $allowedIds = getAllowedProjectIds($currentTeam->id, $user->id);
-
-        if (empty($allowedIds)) {
-            // No restrictions - return all team projects
-            return $query->where('team_id', $currentTeam->id);
+        if ($currentTeamId = currentTeam()?->id) {
+            $teamIds->push($currentTeamId);
         }
 
-        // Restricted access - return only allowed projects
-        return $query->where('team_id', $currentTeam->id)
-            ->whereIn('id', $allowedIds);
+        if ($teamIds->isEmpty()) {
+            $teamIds = $user->teams->pluck('id');
+        }
+
+        $teamIds = $teamIds->filter()->unique();
+
+        if ($teamIds->isEmpty()) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $teamScopedQuery) use ($teamIds, $user) {
+            foreach ($teamIds as $candidateTeamId) {
+                $teamScopedQuery->orWhere(function (Builder $teamQuery) use ($user, $candidateTeamId) {
+                    if ($user->isAdminOfTeam($candidateTeamId)) {
+                        $teamQuery->where('team_id', $candidateTeamId);
+
+                        return;
+                    }
+
+                    if (! hasRestrictedProjectAccess($candidateTeamId, $user->id)) {
+                        $teamQuery->where('team_id', $candidateTeamId);
+
+                        return;
+                    }
+
+                    $allowedIds = getAllowedProjectIds($candidateTeamId, $user->id);
+
+                    $teamQuery->where('team_id', $candidateTeamId)
+                        ->whereIn('id', $allowedIds);
+                });
+            }
+        });
     }
 }

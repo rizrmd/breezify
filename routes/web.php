@@ -157,6 +157,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::get('/terminal', TerminalIndex::class)->name('terminal')->middleware('can.access.terminal');
+
+    Route::get('/monitoring', \App\Livewire\Monitoring\Index::class)->name('monitoring.index');
     Route::post('/terminal/auth', function () {
         if (auth()->check()) {
             return response()->json(['authenticated' => true], 200);

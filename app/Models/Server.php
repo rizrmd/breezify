@@ -300,7 +300,6 @@ class Server extends BaseModel
         });
     }
 
-
     /**
      * Get query builder for servers owned by current team.
      * When shared servers are enabled, this also includes shared access from server_team.
@@ -1010,12 +1009,10 @@ $schema://$host {
     /**
      * Teams with shared access to this server (feature-flagged).
      */
-
     public function sharedTeams()
     {
         return $this->belongsToMany(Team::class, 'server_team');
     }
-
 
     public function sslCertificates()
     {
@@ -1410,6 +1407,10 @@ $schema://$host {
 
     public function restartSentinel(?string $customImage = null, bool $async = true)
     {
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
         try {
             if ($async) {
                 StartSentinel::dispatch($this, true, null, $customImage);

@@ -79,8 +79,17 @@ class ServerPolicy
      */
     public function manageProxy(User $user, Server $server): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
-        return true;
+        if ($user->teams->contains('id', $server->team_id)) {
+            return true;
+        }
+
+        if (! config('constants.coolify.shared_servers_enabled')) {
+            return false;
+        }
+
+        return $server->sharedTeams()
+            ->whereIn('teams.id', $user->teams->pluck('id'))
+            ->exists();
     }
 
     /**

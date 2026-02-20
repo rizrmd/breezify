@@ -35,11 +35,14 @@ class InstanceSettings extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (InstanceSettings $settings) {
+            if ($settings->id !== null && InstanceSettings::where('id', $settings->id)->exists()) {
+                InstanceSettings::where('id', $settings->id)->delete();
+            }
+        });
         static::updated(function ($settings) {
             // Clear once() cache so subsequent calls get fresh data
             Once::flush();
-
-            // Clear trusted hosts cache when FQDN changes
             if ($settings->wasChanged('fqdn')) {
                 \Cache::forget('instance_settings_fqdn_host');
             }
@@ -86,14 +89,9 @@ class InstanceSettings extends Model
 
     public static function get()
     {
-        return once(function () {
-            $settings = InstanceSettings::find(0);
-            if ($settings) {
-                return $settings;
-            }
-
-            return InstanceSettings::create([
-                'id' => 0,
+        return once(fn () => InstanceSettings::firstOrCreate(
+            ['id' => 0],
+            [
                 'is_registration_enabled' => true,
                 'is_api_enabled' => isDev(),
                 'smtp_enabled' => true,
@@ -101,8 +99,8 @@ class InstanceSettings extends Model
                 'smtp_port' => 1025,
                 'smtp_from_address' => 'hi@localhost.com',
                 'smtp_from_name' => 'Coolify',
-            ]);
-        });
+            ]
+        ));
     }
 
     // public function getRecipients($notification)

@@ -41,9 +41,31 @@ class ServiceApplication extends BaseModel
      * Get query builder for service applications owned by current team.
      * If you need all service applications without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam()
+    public static function ownedByCurrentTeam(?int $teamId = null)
     {
-        return ServiceApplication::whereRelation('service.environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $teamIds = collect();
+
+        if ($teamId) {
+            $teamIds->push($teamId);
+        }
+
+        if ($currentTeamId = currentTeam()?->id) {
+            $teamIds->push($currentTeamId);
+        }
+
+        if ($teamIds->isEmpty() && auth()->check()) {
+            $teamIds = auth()->user()->teams()->pluck('teams.id');
+        }
+
+        $teamIds = $teamIds->filter()->unique();
+
+        if ($teamIds->isEmpty()) {
+            return ServiceApplication::query()->whereRaw('1 = 0');
+        }
+
+        return ServiceApplication::whereHas('service.environment.project.team', function ($query) use ($teamIds) {
+            $query->whereIn('teams.id', $teamIds);
+        })->orderBy('name');
     }
 
     /**

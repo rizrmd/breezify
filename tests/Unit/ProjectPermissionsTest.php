@@ -1,8 +1,6 @@
 <?php
 
-use App\Models\Project;
-use App\Models\Team;
-use App\Models\User;
+uses(Tests\TestCase::class);
 
 beforeEach(function () {
     // Create temporary permissions file
@@ -74,11 +72,19 @@ test('canUserAccessProject returns false for restricted project', function () {
     expect(canUserAccessProject(1, 5, 99))->toBeFalse();
 });
 
-test('setAllowedProjects with empty array removes restrictions', function () {
+test('setAllowedProjects with empty array keeps restriction but removes access', function () {
     setAllowedProjects(1, 5, [1, 3, 7]);
     expect(hasRestrictedProjectAccess(1, 5))->toBeTrue();
-
     setAllowedProjects(1, 5, []);
+    expect(hasRestrictedProjectAccess(1, 5))->toBeTrue();
+    expect(getAllowedProjectIds(1, 5))->toBe([]);
+});
+
+test('setAllowedProjects with null removes restrictions', function () {
+    setAllowedProjects(1, 5, [1, 2]);
+    expect(hasRestrictedProjectAccess(1, 5))->toBeTrue();
+
+    setAllowedProjects(1, 5, null);
     expect(hasRestrictedProjectAccess(1, 5))->toBeFalse();
 });
 
@@ -135,12 +141,12 @@ test('removeProjectFromPermissions removes project from all users', function () 
     expect(getAllowedProjectIds(1, 8))->toBe([4]);
 });
 
-test('removeProjectFromPermissions removes entry when no projects left', function () {
+test('removeProjectFromPermissions keeps restriction when no projects left', function () {
     setAllowedProjects(1, 5, [2]);
-
     removeProjectFromPermissions(2);
 
-    expect(hasRestrictedProjectAccess(1, 5))->toBeFalse();
+    expect(hasRestrictedProjectAccess(1, 5))->toBeTrue();
+    expect(getAllowedProjectIds(1, 5))->toBe([]);
 });
 
 test('permissions are cached and cleared properly', function () {

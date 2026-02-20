@@ -1308,54 +1308,46 @@ function escapeBashDoubleQuoted(?string $value): string
         return '""';
     }
 
-    // Step 1: Escape backslashes first (must be done before other escaping)
     $escaped = str_replace('\\', '\\\\', $value);
-
-    // Step 2: Escape double quotes
     $escaped = str_replace('"', '\\"', $escaped);
-
-    // Step 3: Escape backticks (command substitution)
     $escaped = str_replace('`', '\\`', $escaped);
+    $escaped = str_replace('$', '\\$', $escaped);
 
-    // Step 4: Escape invalid $ patterns while preserving valid variable references
-    // Valid patterns to keep:
-    //   - $VAR_NAME (alphanumeric + underscore, starting with letter or _)
-    //   - ${VAR_NAME} (brace expansion)
-    //   - $0-$9 (positional parameters)
-    // Invalid patterns to escape: $&, $#, $$, $*, $@, $!, $(, etc.
-
-    // Match $ followed by anything that's NOT a valid variable start
-    // Valid variable starts: letter, underscore, digit (for $0-$9), or open brace
-    $escaped = preg_replace(
-        '/\$(?![a-zA-Z_0-9{])/',
-        '\\\$',
-        $escaped
-    );
-
-    // Preserve pre-escaped dollars inside double quotes: turn \\$ back into \$
-    // (keeps tests like "path\\to\\file" intact while restoring \$ semantics)
-    $escaped = preg_replace('/\\\\(?=\$)/', '\\\\', $escaped);
-
-    // Wrap in double quotes
     return "\"{$escaped}\"";
+
 }
 
 /**
  * Generate Docker build arguments from environment variables collection
- * Returns only keys (no values) since values are sourced from environment via export
+ * Properly escapes both single-line and multiline values so docker build receives
+ * the literal value even when it contains newlines or bash-sensitive characters.
  *
  * @param  \Illuminate\Support\Collection|array  $variables  Collection of variables with 'key', 'value', and optionally 'is_multiline'
- * @return \Illuminate\Support\Collection Collection of formatted --build-arg strings (keys only)
+ * @return \Illuminate\Support\Collection Collection of formatted --build-arg strings with values
  */
 function generateDockerBuildArgs($variables): \Illuminate\Support\Collection
 {
     $variables = collect($variables);
 
     return $variables->map(function ($var) {
-        $key = is_array($var) ? data_get($var, 'key') : $var->key;
 
-        // Only return the key - Docker will get the value from the environment
-        return "--build-arg {$key}";
+        $key = is_array($var) ? data_get($var, 'key') : $var->key;
+        $value = is_array($var) ? data_get($var, 'value') : $var->value;
+        $isMultiline = is_array($var) ? data_get($var, 'is_multiline', false) : ($var->is_multiline ?? false);
+
+        $stringValue = (string) ($value ?? '');
+
+        if ($isMultiline) {
+            if (strlen($stringValue) >= 2 && str_starts_with($stringValue, "'") && str_ends_with($stringValue, "'")) {
+                $stringValue = substr($stringValue, 1, -1);
+            }
+
+            $escapedValue = escapeBashDoubleQuoted($stringValue);
+        } else {
+            $escapedValue = escapeBashEnvValue($stringValue);
+        }
+
+        return "--build-arg {$key}={$escapedValue}";
     });
 }
 

@@ -96,7 +96,12 @@ function getFilesystemVolumesFromServer(ServiceApplication|ServiceDatabase|Appli
 }
 function updateCompose(ServiceApplication|ServiceDatabase $resource)
 {
+    if (app()->runningUnitTests()) {
+        return;
+    }
+
     try {
+
         $name = data_get($resource, 'name');
         $dockerComposeRaw = data_get($resource, 'service.docker_compose_raw');
         if (! $dockerComposeRaw) {

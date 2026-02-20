@@ -116,13 +116,12 @@ class RestartProxyTest extends TestCase
 
         // Get the jobs
         $jobs = Queue::pushed(RestartProxyJob::class);
-
-        // Verify both jobs have WithoutOverlapping middleware
         foreach ($jobs as $job) {
-            $middleware = $job['job']->middleware();
+            $middleware = $job->middleware();
             $this->assertCount(1, $middleware);
             $this->assertInstanceOf(\Illuminate\Queue\Middleware\WithoutOverlapping::class, $middleware[0]);
         }
+
     }
 
     public function test_restart_uses_server_team_id()

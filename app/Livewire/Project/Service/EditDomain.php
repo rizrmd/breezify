@@ -68,6 +68,7 @@ class EditDomain extends Component
     public function confirmRemovePort()
     {
         $this->forceRemovePort = true;
+        $this->forceSaveDomains = true;
         $this->showPortWarningModal = false;
         $this->submit();
     }
@@ -97,19 +98,6 @@ class EditDomain extends Component
             }
             // Sync to model for domain conflict check (without validation)
             $this->application->fqdn = $this->fqdn;
-            // Check for domain conflicts if not forcing save
-            if (! $this->forceSaveDomains) {
-                $result = checkDomainUsage(resource: $this->application);
-                if ($result['hasConflicts']) {
-                    $this->domainConflicts = $result['conflicts'];
-                    $this->showDomainConflictModal = true;
-
-                    return;
-                }
-            } else {
-                // Reset the force flag after using it
-                $this->forceSaveDomains = false;
-            }
 
             // Check for required port
             if (! $this->forceRemovePort) {
@@ -143,6 +131,17 @@ class EditDomain extends Component
             } else {
                 // Reset the force flag after using it
                 $this->forceRemovePort = false;
+            }
+            if (! $this->forceSaveDomains) {
+                $result = checkDomainUsage(resource: $this->application);
+                if ($result['hasConflicts']) {
+                    $this->domainConflicts = $result['conflicts'];
+                    $this->showDomainConflictModal = true;
+
+                    return;
+                }
+            } else {
+                $this->forceSaveDomains = false;
             }
 
             $this->validate();

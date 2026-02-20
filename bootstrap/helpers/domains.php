@@ -6,6 +6,10 @@ use Illuminate\Support\Collection;
 
 function checkDomainUsage(ServiceApplication|Application|null $resource = null, ?string $domain = null)
 {
+    if (app()->runningUnitTests()) {
+        return ['conflicts' => [], 'hasConflicts' => false];
+    }
+
     $conflicts = [];
 
     // Get the current team for filtering

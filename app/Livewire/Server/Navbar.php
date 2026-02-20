@@ -34,7 +34,7 @@ class Navbar extends Component
 
     public function getListeners()
     {
-        $teamId = auth()->user()->currentTeam()->id;
+        $teamId = auth()->user()?->currentTeam()?->id ?? $this->server->team_id ?? 0;
 
         return [
             'refreshServerShow' => 'refreshServer',
@@ -64,18 +64,16 @@ class Navbar extends Component
 
     public function restart()
     {
-        try {
-            $this->authorize('manageProxy', $this->server);
+        $this->authorize('manageProxy', $this->server);
 
-            // Prevent duplicate restart calls
+        try {
             if ($this->restartInitiated) {
                 return;
             }
+
             $this->restartInitiated = true;
-
-            // Always use background job for all servers
             RestartProxyJob::dispatch($this->server);
-
+            $this->dispatch('info', 'Proxy restart initiated. Monitor progress in activity logs.');
         } catch (\Throwable $e) {
             $this->restartInitiated = false;
 

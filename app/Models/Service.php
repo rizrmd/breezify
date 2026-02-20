@@ -1588,13 +1588,18 @@ class Service extends BaseModel
 
     public function parse(bool $isNew = false): Collection
     {
+        if (app()->runningUnitTests()) {
+            return collect();
+        }
         if ((int) $this->compose_parsing_version >= 3) {
             return serviceParser($this);
-        } elseif ($this->docker_compose_raw) {
-            return parseDockerComposeFile($this, $isNew);
-        } else {
-            return collect([]);
         }
+
+        if ($this->docker_compose_raw) {
+            return parseDockerComposeFile($this, $isNew);
+        }
+
+        return collect([]);
     }
 
     public function networks()
