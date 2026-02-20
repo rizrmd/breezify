@@ -47,6 +47,7 @@ All notable changes to this project will be documented in this file.
 - *(database)* Add official postgres 18 and pgvector 18 support (#8143)
 - *(ui)* Improve global search with uuid and pr support (#7901)
 - *(openclaw)* Add Openclaw service with environment variables and health checks
+- Add monitoring overview and stabilize test fixtures
 
 ### 🐛 Bug Fixes
 
@@ -142,6 +143,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - *(api)* Improve app endpoint deprecation description
+- Update changelog
 - Update changelog
 
 ### 🧪 Testing
