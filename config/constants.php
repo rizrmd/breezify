@@ -2,9 +2,9 @@
 
 return [
     'coolify' => [
-        'version' => '4.0.0-beta.464',
+        'version' => '4.0.0-beta.465',
         'helper_version' => '1.0.12',
-        'realtime_version' => '1.0.10',
+        'realtime_version' => '1.0.11',
         'self_hosted' => env('SELF_HOSTED', true),
         'shared_servers_enabled' => env('SHARED_SERVERS_ENABLED', false),
         'autoupdate' => env('AUTOUPDATE'),
