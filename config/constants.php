@@ -16,7 +16,7 @@ return [
         'cdn_url' => env('CDN_URL', 'https://raw.githubusercontent.com/rizrmd/breezify/refs/heads/v4.x'),
         'versions_url' => env('VERSIONS_URL', env('CDN_URL', 'https://raw.githubusercontent.com/rizrmd/breezify/refs/heads/v4.x').'/coolify/versions.json'),
         'upgrade_script_url' => env('UPGRADE_SCRIPT_URL', env('CDN_URL', 'https://raw.githubusercontent.com/rizrmd/breezify/refs/heads/v4.x').'/coolify/upgrade.sh'),
-        'releases_url' => 'https://cdn.coolify.io/releases.json',
+        'releases_url' => env('CDN_URL', 'https://raw.githubusercontent.com/rizrmd/breezify/refs/heads/v4.x').'/coolify/releases.json',
     ],
 
     'urls' => [
