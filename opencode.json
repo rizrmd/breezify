@@ -5,10 +5,17 @@
             "type": "local",
             "enabled": true,
             "command": [
+                "/usr/bin/docker",
+                "exec",
+                "-i",
+                "-e",
+                "APP_ENV=local",
+                "coolify",
                 "php",
                 "artisan",
                 "boost:mcp"
-            ]
+            ],
+            "cwd": "/home/riz/breezify"
         }
     }
 }

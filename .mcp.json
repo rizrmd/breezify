@@ -1,11 +1,18 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "php",
+            "command": "/usr/bin/docker",
             "args": [
+                "exec",
+                "-i",
+                "-e",
+                "APP_ENV=local",
+                "coolify",
+                "php",
                 "artisan",
                 "boost:mcp"
-            ]
+            ],
+            "cwd": "/home/riz/breezify"
         }
     }
 }

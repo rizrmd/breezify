@@ -1,4 +1,4 @@
 [mcp_servers.laravel-boost]
-command = "php"
-args = ["artisan", "boost:mcp"]
-cwd = "/Users/heyandras/devel/coolify"
+command = "/usr/bin/docker"
+args = ["exec", "-i", "-e", "APP_ENV=local", "coolify", "php", "artisan", "boost:mcp"]
+cwd = "/home/riz/breezify"
