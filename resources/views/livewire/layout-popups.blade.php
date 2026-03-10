@@ -86,6 +86,79 @@
             @endif
         </span>
     @endauth
+    @if (instanceSettings()->is_sponsorship_popup_enabled && !isCloud())
+        <span x-show="popups.sponsorship">
+            <x-popup>
+                <x-slot:customActions>
+                    <div
+                        class="flex md:flex-row flex-col max-w-4xl p-6 mx-auto bg-white border shadow-lg lg:border-t dark:border-coolgray-300 border-neutral-200 dark:bg-coolgray-100 lg:p-8 lg:pb-4 sm:rounded-sm gap-2">
+                        <div class="md:block hidden">
+                            <img src="{{ asset('heart.png') }}" class="w-20 h-20">
+                        </div>
+                        <div class="flex flex-col gap-2 lg:px-10 px-1">
+                            <div class="lg:text-xl text-md dark:text-white font-bold">Love Coolify? Support our work.
+                            </div>
+                            <div class="lg:text-sm text-xs dark:text-white">
+                                We are already profitable thanks to <span class="font-bold text-pink-500">YOU</span>
+                                but...<br />We
+                                would
+                                like to
+                                make
+                                more cool features.
+                            </div>
+                            <div class="lg:text-sm text-xs dark:text-white pt-2 ">
+                                For this we need your help to support our work financially.
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2 text-center md:mx-auto lg:py-0 pt-2">
+                            <x-forms.button isHighlighted class="md:w-36 w-full"><a target="_blank"
+                                    href="https://github.com/sponsors/coollabsio"
+                                    class="font-bold dark:text-white">GitHub
+                                    Sponsors</a></x-forms.button>
+                            <x-forms.button isHighlighted class="md:w-36 w-full"><a target="_blank"
+                                    href="https://opencollective.com/coollabsio/donate?interval=month&amount=10&name=&legalName=&email="
+                                    class="font-bold dark:text-white">Open
+                                    Collective</a></x-forms.button>
+                            <x-forms.button isHighlighted class="md:w-36 w-full"><a
+                                    href="https://donate.stripe.com/8x2bJ104ifmB9kB45u38402" target="_blank"
+                                    class="font-bold dark:text-white">Stripe</a></x-forms.button>
+                            <div class="pt-4 dark:text-white hover:underline cursor-pointer lg:text-base text-xs"
+                                @click="bannerVisible=false;disableSponsorship()">
+                                Maybe next time
+                            </div>
+                        </div>
+                    </div>
+                </x-slot:customActions>
+            </x-popup>
+        </span>
+    @endif
+    @if (request()->query->get('cancelled'))
+        <x-banner>
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span><span class="font-bold text-red-500">Subscription Error.</span> Something went wrong. Please try
+                    again or <a class="underline dark:text-white"
+                        href="{{ config('constants.urls.contact') }}" target="_blank">contact support</a>.</span>
+            </div>
+        </x-banner>
+    @endif
+    @if (request()->query->get('success'))
+        <x-banner>
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span><span class="font-bold text-green-500">Welcome onboard!</span> Your subscription has been
+                    activated. It could take a few seconds before it's fully active.</span>
+            </div>
+        </x-banner>
+    @endif
     @if (currentTeam()->subscriptionPastOverDue())
         <x-banner :closable=false>
             <div><span class="font-bold text-red-500">WARNING:</span> Your subscription is in over-due. If your

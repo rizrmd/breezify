@@ -4,9 +4,7 @@ namespace App\Models;
 
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 use Visus\Cuid2\Cuid2;
 
@@ -24,7 +22,6 @@ class Project extends BaseModel
 {
     use ClearsGlobalSearchCache;
     use HasFactory;
-    use HasSafeStringAttribute;
     use HasSafeStringAttribute;
 
     protected $guarded = [];

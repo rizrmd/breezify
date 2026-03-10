@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class StandaloneDocker extends BaseModel
 {
-    use HasFactory, HasSafeStringAttribute;
+    use HasFactory;
+    use HasSafeStringAttribute;
 
     protected $guarded = [];
 

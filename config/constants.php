@@ -2,11 +2,11 @@
 
 return [
     'coolify' => [
-        'version' => '4.0.0-beta.463',
+        'version' => '4.0.0-beta.464',
         'helper_version' => '1.0.12',
         'realtime_version' => '1.0.10',
         'self_hosted' => env('SELF_HOSTED', true),
-        'shared_servers_enabled' => env('SHARED_SERVERS_ENABLED', true),
+        'shared_servers_enabled' => env('SHARED_SERVERS_ENABLED', false),
         'autoupdate' => env('AUTOUPDATE'),
         'base_config_path' => env('BASE_CONFIG_PATH', '/data/coolify'),
         'registry_url' => env('REGISTRY_URL', 'ghcr.io'),
