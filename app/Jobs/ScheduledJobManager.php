@@ -8,6 +8,7 @@ use App\Models\ScheduledTask;
 use App\Models\Server;
 use App\Models\Team;
 use Cron\CronExpression;
+use Illuminate\Container\Container;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -77,6 +78,10 @@ class ScheduledJobManager implements ShouldQueue
      */
     private static function clearStaleLockIfPresent(): void
     {
+        if (! Container::getInstance()->bound('config')) {
+            return;
+        }
+
         try {
             $cachePrefix = config('cache.prefix', '');
             $lockKey = $cachePrefix.'laravel-queue-overlap:'.self::class.':scheduled-job-manager';
