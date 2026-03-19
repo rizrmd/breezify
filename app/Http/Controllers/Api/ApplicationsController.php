@@ -2969,7 +2969,7 @@ class ApplicationsController extends Controller
         if ($return instanceof \Illuminate\Http\JsonResponse) {
             return $return;
         }
-        $application = Application::ownedByCurrentTeamAPI($teamId)->where('uuid', $request->uuid)->first();
+        $application = Application::ownedByCurrentTeamAPI($teamId)->where('uuid', $request->route('uuid'))->first();
 
         if (! $application) {
             return response()->json([
@@ -3170,7 +3170,7 @@ class ApplicationsController extends Controller
         if ($return instanceof \Illuminate\Http\JsonResponse) {
             return $return;
         }
-        $application = Application::ownedByCurrentTeamAPI($teamId)->where('uuid', $request->uuid)->first();
+        $application = Application::ownedByCurrentTeamAPI($teamId)->where('uuid', $request->route('uuid'))->first();
 
         if (! $application) {
             return response()->json([
@@ -3364,7 +3364,7 @@ class ApplicationsController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $application = Application::ownedByCurrentTeamAPI($teamId)->where('uuid', $request->uuid)->first();
+        $application = Application::ownedByCurrentTeamAPI($teamId)->where('uuid', $request->route('uuid'))->first();
 
         if (! $application) {
             return response()->json([
@@ -3521,7 +3521,7 @@ class ApplicationsController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $application = Application::ownedByCurrentTeamAPI($teamId)->where('uuid', $request->uuid)->first();
+        $application = Application::ownedByCurrentTeamAPI($teamId)->where('uuid', $request->route('uuid'))->first();
 
         if (! $application) {
             return response()->json([
@@ -3531,7 +3531,7 @@ class ApplicationsController extends Controller
 
         $this->authorize('manageEnvironment', $application);
 
-        $found_env = EnvironmentVariable::where('uuid', $request->env_uuid)
+        $found_env = EnvironmentVariable::where('uuid', $request->route('env_uuid'))
             ->where('resourceable_type', Application::class)
             ->where('resourceable_id', $application->id)
             ->first();
