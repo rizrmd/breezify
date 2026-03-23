@@ -200,7 +200,7 @@ class ScheduledJobManager implements ShouldQueue
                     $frequency = VALID_CRON_STRINGS[$frequency];
                 }
 
-                if ($this->shouldRunNow($frequency, $serverTimezone, "scheduled-backup:{$backup->id}")) {
+                if (shouldRunCronNow($frequency, $serverTimezone, "scheduled-backup:{$backup->id}", $this->executionTime)) {
                     DatabaseBackupJob::dispatch($backup);
                     $this->dispatchedCount++;
                     Log::channel('scheduled')->info('Backup dispatched', [
@@ -294,7 +294,7 @@ class ScheduledJobManager implements ShouldQueue
                     $frequency = VALID_CRON_STRINGS[$frequency];
                 }
 
-                if (! $this->shouldRunNow($frequency, $serverTimezone, "scheduled-task:{$task->id}")) {
+                if (! shouldRunCronNow($frequency, $serverTimezone, "scheduled-task:{$task->id}", $this->executionTime)) {
                     continue;
                 }
 
@@ -417,51 +417,6 @@ class ScheduledJobManager implements ShouldQueue
         return null;
     }
 
-    /**
-     * Determine if a cron schedule should run now.
-     *
-     * When a dedupKey is provided, uses getPreviousRunDate() + last-dispatch tracking
-     * instead of isDue(). This is resilient to queue delays — even if the job is delayed
-     * by minutes, it still catches the missed cron window. Without dedupKey, falls back
-     * to simple isDue() check.
-     */
-    private function shouldRunNow(string $frequency, string $timezone, ?string $dedupKey = null): bool
-    {
-        $cron = new CronExpression($frequency);
-        $baseTime = $this->executionTime ?? Carbon::now();
-        $executionTime = $baseTime->copy()->setTimezone($timezone);
-
-        // No dedup key → simple isDue check
-        if ($dedupKey === null) {
-            return $cron->isDue($executionTime);
-        }
-
-        // Get the most recent time this cron was due (including current minute)
-        $previousDue = Carbon::instance($cron->getPreviousRunDate($executionTime, allowCurrentDate: true));
-
-        $lastDispatched = Cache::get($dedupKey);
-
-        if ($lastDispatched === null) {
-            // First run after restart or cache loss: only fire if actually due right now.
-            // Seed the cache so subsequent runs can use tolerance/catch-up logic.
-            $isDue = $cron->isDue($executionTime);
-            if ($isDue) {
-                Cache::put($dedupKey, $executionTime->toIso8601String(), 86400);
-            }
-
-            return $isDue;
-        }
-
-        // Subsequent runs: fire if there's been a due time since last dispatch
-        if ($previousDue->gt(Carbon::parse($lastDispatched))) {
-            Cache::put($dedupKey, $executionTime->toIso8601String(), 86400);
-
-            return true;
-        }
-
-        return false;
-    }
-
     private function processDockerCleanups(): void
     {
         // Get all servers that need cleanup checks
@@ -492,7 +447,7 @@ class ScheduledJobManager implements ShouldQueue
                 }
 
                 // Use the frozen execution time for consistent evaluation
-                if ($this->shouldRunNow($frequency, $serverTimezone, "docker-cleanup:{$server->id}")) {
+                if (shouldRunCronNow($frequency, $serverTimezone, "docker-cleanup:{$server->id}", $this->executionTime)) {
                     DockerCleanupJob::dispatch(
                         $server,
                         false,
