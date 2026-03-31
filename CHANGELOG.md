@@ -91,6 +91,73 @@ All notable changes to this project will be documented in this file.
 - *(service)* Disable minio community edition (#8686)
 - *(subscription)* Add Stripe server limit quantity adjustment flow
 - *(subscription)* Add refunds and cancellation management (#8637)
+- Add configurable timeout for public database TCP proxy
+- *(jobs)* Implement encrypted queue jobs
+- *(proxy)* Add database-backed config storage with disk backups
+- *(livewire)* Add selectedActions parameter and error handling to delete methods
+- *(gitlab)* Add GitLab source integration with SSH and HTTP basic auth
+- *(server)* Add server metadata collection and display
+- *(git-import)* Support custom ssh command for fetch, submodule, and lfs
+- *(ui)* Add log filter based on log level
+- *(seeders)* Add GitHub deploy key example application
+- *(service)* Add container label escape control to services API
+- *(server)* Allow force deletion of servers with resources
+- *(compose-preview)* Populate fqdn from docker_compose_domains
+- *(server)* Auto-fetch server metadata after validation
+- *(preview)* Add configurable PR suffix toggle for volumes
+- *(api)* Add storages endpoints for applications
+- *(api)* Expand update_storage to support name, mount_path, host_path, content fields
+- *(environment-variable)* Add placeholder hint for magic variables
+- *(subscription)* Display next billing date and billing interval
+- *(api)* Support comments in bulk environment variable endpoints
+- *(api)* Add database environment variable management endpoints
+- *(storage)* Add resources tab and improve S3 deletion handling
+- *(storage)* Group backups by database and filter by s3 status
+- *(storage)* Add storage management for backup schedules
+- *(jobs)* Add cache-based deduplication for delayed cron execution
+- *(storage)* Add storage endpoints and UUID support for databases and services
+- *(monitoring)* Add Laravel Nightwatch monitoring support
+- *(validation)* Make hostname validation case-insensitive and expand allowed characters
+- *(proxy)* Validate stored config matches current proxy type
+- Add configurable timeout for public database TCP proxy
+- Add configurable proxy timeout for public database TCP proxy (#8673)
+- *(jobs)* Implement encrypted queue jobs
+- *(proxy)* Add database-backed config storage with disk backups
+- *(proxy)* Add database-backed config storage with disk backups (#8905)
+- *(livewire)* Add selectedActions parameter and error handling to delete methods
+- *(gitlab)* Add GitLab source integration with SSH and HTTP basic auth
+- *(git-sources)* Add GitLab integration and URL encode credentials (#8910)
+- *(server)* Add server metadata collection and display
+- *(git-import)* Support custom ssh command for fetch, submodule, and lfs
+- *(ui)* Add log filter based on log level
+- *(ui)* Add log filter based on log level (#8784)
+- *(seeders)* Add GitHub deploy key example application
+- *(service)* Update n8n-with-postgres-and-worker to 2.10.4 (#8807)
+- *(service)* Add container label escape control to services API
+- *(server)* Allow force deletion of servers with resources
+- *(server)* Allow force deletion of servers with resources (#8962)
+- *(compose-preview)* Populate fqdn from docker_compose_domains
+- *(compose-preview)* Populate fqdn from docker_compose_domains (#8963)
+- *(server)* Auto-fetch server metadata after validation
+- *(server)* Auto-fetch server metadata after validation (#8964)
+- *(templates)* Add imgcompress service, for offline image processing (#8763)
+- *(service)* Add librespeed (#8626)
+- *(service)* Update databasus to v3.16.2 (#8586)
+- *(preview)* Add configurable PR suffix toggle for volumes
+- *(api)* Add storages endpoints for applications
+- *(api)* Expand update_storage to support name, mount_path, host_path, content fields
+- *(environment-variable)* Add placeholder hint for magic variables
+- *(subscription)* Display next billing date and billing interval
+- *(api)* Support comments in bulk environment variable endpoints
+- *(api)* Add database environment variable management endpoints
+- *(storage)* Add resources tab and improve S3 deletion handling
+- *(storage)* Group backups by database and filter by s3 status
+- *(storage)* Add storage management for backup schedules
+- *(jobs)* Add cache-based deduplication for delayed cron execution
+- *(storage)* Add storage endpoints and UUID support for databases and services
+- *(monitoring)* Add Laravel Nightwatch monitoring support
+- *(validation)* Make hostname validation case-insensitive and expand allowed characters
+- *(proxy)* Validate stored config matches current proxy type
 
 ### 🐛 Bug Fixes
 
@@ -220,6 +287,132 @@ All notable changes to this project will be documented in this file.
 - *(ip-allowlist)* Add IPv6 CIDR support for API access restrictions (#8750)
 - *(proxy)* Remove ipv6 cidr network remediation
 - Guard scheduler stale lock cleanup in unit tests
+- *(database)* Close confirmation modal after import/restore
+- Address review feedback on proxy timeout
+- *(proxy)* Add validation and normalization for database proxy timeout
+- *(proxy)* Mounting error for nginx.conf in dev
+- Enable preview deployment page for deploy key applications
+- *(application-source)* Support localhost key with id=0
+- *(subscription)* Use optional chaining for preview object access
+- *(parser)* Use firstOrCreate instead of updateOrCreate for environment variables
+- *(push-server)* Track last_online_at and reset database restart state
+- *(api)* Require write permission for validation endpoints
+- *(sentinel)* Add token validation to prevent command injection
+- *(log-drain)* Prevent command injection by base64-encoding environment variables
+- *(git-ref-validation)* Prevent command injection via git references
+- *(docker)* Add path validation to prevent command injection in file locations
+- Prevent scheduled task input fields from losing focus
+- *(api)* Add docker_cleanup parameter to stop endpoints
+- *(deployment)* Filter null and empty environment variables from nixpacks plan
+- *(parsers)* Use firstOrCreate instead of updateOrCreate for environment variables
+- *(parsers)* Resolve shared variables in compose environment
+- *(api)* Cast teamId to int in deployment authorization check
+- *(ui)* Info logs were not highlighted with blue color
+- *(application)* Clarify deployment type precedence logic
+- *(git-import)* Explicitly specify ssh key and remove duplicate validation rules
+- *(git)* GitHub App webhook endpoint defaults to IPv4 instead of the instance domain
+- *(service)* Hoppscotch fails to start due to db unhealthy
+- *(docker-compose)* Respect preserveRepository when injecting --project-directory
+- *(compose)* Include git branch in compose file not found error
+- *(template)* Fix heyform template
+- *(preview)* Exclude bind mounts from preview deployment suffix
+- *(preview)* Sync isPreviewSuffixEnabled property on file storage save
+- *(storages)* Hide PR suffix for services and fix instantSave logic
+- Prevent sporadic SSH permission denied by validating key content
+- *(ssh)* Handle chmod failures gracefully and simplify key management
+- *(stripe)* Add error handling and resilience to subscription operations
+- *(api)* Extract resource UUIDs from route parameters
+- *(docker)* Skip cleanup stale warning on cloud instances
+- *(deployment)* Disable build server during restart operations
+- *(docker)* Log failed cleanup attempts when server is not functional
+- *(environment-variable)* Guard refresh against missing or stale variables
+- *(github-webhook)* Handle unsupported event types gracefully
+- *(deployment)* Properly escape shell arguments in nixpacks commands
+- *(subscription)* Prevent duplicate subscriptions with updateOrCreate
+- *(parsers)* Preserve ${VAR} references in compose instead of resolving to DB values
+- *(database)* Close confirmation modal after import/restore
+- Address review feedback on proxy timeout
+- *(proxy)* Add validation and normalization for database proxy timeout
+- *(proxy)* Mounting error for nginx.conf in dev
+- Enable preview deployment page for deploy key applications
+- *(application-source)* Support localhost key with id=0
+- Enable preview deployment page for deploy key applications (#8579)
+- *(docker-compose)* Respect preserveRepository setting when executing start command (#8848)
+- *(proxy)* Mounting error for nginx.conf in dev (#8662)
+- *(database)* Close confirmation modal after database import/restore (#8697)
+- *(subscription)* Use optional chaining for preview object access
+- *(parser)* Use firstOrCreate instead of updateOrCreate for environment variables
+- *(env-parser)* Capture clean variable names without trailing braces in bash-style defaults (#8855)
+- *(terminal)* Resolve WebSocket connection and host authorization issues (#8862)
+- *(docker-cleanup)* Respect keep for rollback setting for Nixpacks build images (#8859)
+- *(push-server)* Track last_online_at and reset database restart state
+- *(docker)* Prevent false container exits on failed docker queries (#8860)
+- *(api)* Require write permission for validation endpoints
+- *(sentinel)* Add token validation to prevent command injection
+- *(log-drain)* Prevent command injection by base64-encoding environment variables
+- *(git-ref-validation)* Prevent command injection via git references
+- *(docker)* Add path validation to prevent command injection in file locations
+- Prevent command injection and fix developer view shared variables error (#8889)
+- Build-time environment variables break Next.js (#8890)
+- *(modal)* Make confirmation modal close after dispatching Livewire actions (#8892)
+- *(parser)* Preserve user-saved env vars on Docker Compose redeploy (#8894)
+- *(security)* Sanitize newlines in health check commands to prevent RCE (#8898)
+- Prevent scheduled task input fields from losing focus
+- Prevent scheduled task input fields from losing focus (#8654)
+- *(api)* Add docker_cleanup parameter to stop endpoints
+- *(api)* Add docker_cleanup parameter to stop endpoints (#8899)
+- *(deployment)* Filter null and empty environment variables from nixpacks plan
+- *(deployment)* Filter null and empty environment variables from nixpacks plan (#8902)
+- *(livewire)* Add error handling and selectedActions to delete methods (#8909)
+- *(parsers)* Use firstOrCreate instead of updateOrCreate for environment variables
+- *(parsers)* Use firstOrCreate instead of updateOrCreate for environment variables (#8915)
+- *(ssh)* Remove undefined trackSshRetryEvent() method call (#8927)
+- *(validation)* Support scoped packages in file path validation (#8928)
+- *(parsers)* Resolve shared variables in compose environment
+- *(parsers)* Resolve shared variables in compose environment (#8930)
+- *(api)* Cast teamId to int in deployment authorization check
+- *(api)* Cast teamId to int in deployment authorization check (#8931)
+- *(git-import)* Ensure ssh key is used for fetch, submodule, and lfs operations (#8933)
+- *(ui)* Info logs were not highlighted with blue color
+- *(application)* Clarify deployment type precedence logic
+- *(git-import)* Explicitly specify ssh key and remove duplicate validation rules
+- *(application)* Clarify deployment type precedence logic (#8934)
+- *(git)* GitHub App webhook endpoint defaults to IPv4 instead of the instance domain
+- *(git)* GitHub App webhook endpoint defaults to IPv4 instead of the instance domain (#8948)
+- *(service)* Hoppscotch fails to start due to db unhealthy
+- *(service)* Hoppscotch fails to start due to db unhealthy (#8949)
+- *(api)* Allow is_container_label_escape_enabled in service operations (#8955)
+- *(docker-compose)* Respect preserveRepository when injecting --project-directory
+- *(docker-compose)* Respect preserveRepository when injecting --project-directory (#8956)
+- *(compose)* Include git branch in compose file not found error
+- *(template)* Fix heyform template
+- *(template)* Fix heyform template (#8747)
+- *(preview)* Exclude bind mounts from preview deployment suffix
+- *(preview)* Sync isPreviewSuffixEnabled property on file storage save
+- *(storages)* Hide PR suffix for services and fix instantSave logic
+- *(preview)* Enable per-volume control of PR suffix in preview deployments (#9006)
+- Prevent sporadic SSH permission denied by validating key content
+- *(ssh)* Handle chmod failures gracefully and simplify key management
+- Prevent sporadic SSH permission denied on key rotation (#8990)
+- *(stripe)* Add error handling and resilience to subscription operations
+- *(stripe)* Add error handling and resilience to subscription operations (#9030)
+- *(api)* Extract resource UUIDs from route parameters
+- *(backup)* Throw explicit error when S3 storage missing or deleted (#9038)
+- *(docker)* Skip cleanup stale warning on cloud instances
+- *(deployment)* Disable build server during restart operations
+- *(deployment)* Disable build server during restart operations (#9045)
+- *(docker)* Log failed cleanup attempts when server is not functional
+- *(environment-variable)* Guard refresh against missing or stale variables
+- *(github-webhook)* Handle unsupported event types gracefully
+- *(github-webhook)* Handle unsupported event types gracefully (#9119)
+- *(deployment)* Properly escape shell arguments in nixpacks commands
+- *(deployment)* Properly escape shell arguments in nixpacks commands (#9122)
+- *(validation)* Make hostname validation case-insensitive and expand allowed name characters (#9134)
+- *(team)* Resolve server limit checks for API token authentication (#9123)
+- *(subscription)* Prevent duplicate subscriptions with updateOrCreate
+- *(parsers)* Preserve ${VAR} references in compose instead of resolving to DB values
+- *(parsers)* Preserve ${VAR} references in compose instead of resolving to DB values (#9147)
+- *(proxy)* Validate stored config matches proxy type (#9146)
 
 ### 💼 Other
 
@@ -227,6 +420,12 @@ All notable changes to this project will be documented in this file.
 - Upgrade postgres client to fix build error
 - Upstream/v4.x
 - Application rollback uses correct commit sha (#8576)
+- *(deps)* Bump rollup from 4.57.1 to 4.59.0
+- *(deps)* Bump league/commonmark from 2.8.0 to 2.8.1
+- *(deps)* Bump rollup from 4.57.1 to 4.59.0
+- *(deps)* Bump rollup from 4.57.1 to 4.59.0 (#8691)
+- *(deps)* Bump league/commonmark from 2.8.0 to 2.8.1
+- *(deps)* Bump league/commonmark from 2.8.0 to 2.8.1 (#8793)
 
 ### 🚜 Refactor
 
@@ -237,6 +436,26 @@ All notable changes to this project will be documented in this file.
 - *(jobs)* Split task skip checks into critical and runtime phases
 - Add explicit fillable array to EnvironmentVariable model
 - Replace inline note with callout component for consistency
+- *(application-source)* Use Laravel helpers for null checks
+- *(ssh)* Remove Sentry retry event tracking from ExecuteRemoteCommand
+- Consolidate file path validation patterns and support scoped packages
+- *(environment-variable)* Remove buildtime/runtime options and improve comment field
+- Remove verbose logging and use explicit exception types
+- *(breadcrumb)* Optimize queries and simplify state management
+- *(scheduler)* Extract cron scheduling logic to shared helper
+- *(team)* Make server limit methods accept optional team parameter
+- *(team)* Update serverOverflow to use static serverLimit
+- *(docker)* Simplify installation and remove version pinning
+- *(application-source)* Use Laravel helpers for null checks
+- *(ssh)* Remove Sentry retry event tracking from ExecuteRemoteCommand
+- Consolidate file path validation patterns and support scoped packages
+- *(environment-variable)* Remove buildtime/runtime options and improve comment field
+- Remove verbose logging and use explicit exception types
+- *(breadcrumb)* Optimize queries and simplify state management
+- *(scheduler)* Extract cron scheduling logic to shared helper
+- *(team)* Make server limit methods accept optional team parameter
+- *(team)* Update serverOverflow to use static serverLimit
+- *(docker)* Simplify installation and remove version pinning
 
 ### 📚 Documentation
 
@@ -264,6 +483,24 @@ All notable changes to this project will be documented in this file.
 - *(application)* Add comments explaining commit selection logic for rollback support
 - *(readme)* Add VPSDime to Big Sponsors list
 - *(readme)* Move MVPS to Huge Sponsors section
+- Update changelog
+- *(settings)* Clarify Do Not Track helper text
+- *(sponsors)* Add ScreenshotOne as a huge sponsor
+- *(sponsors)* Update Brand.dev to Context.dev
+- *(readme)* Add PetroSky Cloud to sponsors
+- *(settings)* Clarify Do Not Track helper text
+- *(sponsors)* Add ScreenshotOne as a huge sponsor
+- *(sponsors)* Update Brand.dev to Context.dev
+- *(readme)* Add PetroSky Cloud to sponsors
+
+### ⚡ Performance
+
+- *(breadcrumb)* Optimize queries and simplify navigation to fix OOM (#9048)
+
+### 🎨 Styling
+
+- *(modal-confirmation)* Improve mobile responsiveness
+- *(modal-confirmation)* Improve mobile responsiveness
 
 ### 🧪 Testing
 
@@ -274,6 +511,10 @@ All notable changes to this project will be documented in this file.
 - *(rollback)* Use full-length git commit SHA values in test fixtures
 - *(rollback)* Verify shell metacharacter escaping in git commit parameter
 - *(factories)* Add missing model factories for app test suite
+- *(magic-variables)* Add feature tests for SERVICE_URL/FQDN variable handling
+- Add behavioral ssh key stale-file regression
+- *(magic-variables)* Add feature tests for SERVICE_URL/FQDN variable handling
+- Add behavioral ssh key stale-file regression
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -355,6 +596,55 @@ All notable changes to this project will be documented in this file.
 - *(ui)* Add labels header
 - *(ui)* Add container labels header (#8752)
 - *(templates)* Update n8n templates to 2.10.2 (#8679)
+- Update MCP config to use Docker exec for local development
+- Prepare for PR
+- Prepare for PR
+- Prepare for PR
+- Prepare for PR
+- Prepare for PR
+- *(version)* Bump coolify, realtime, and sentinel versions
+- *(realtime)* Upgrade npm dependencies
+- *(realtime)* Upgrade coolify-realtime to 1.0.11
+- Prepare for PR
+- Prepare for PR
+- Prepare for PR
+- *(release)* Bump version to 4.0.0-beta.466
+- Prepare for PR
+- Prepare for PR
+- *(service)* Pin castopod service to a static version instead of latest
+- *(service)* Remove unused attributes on imgcompress service
+- *(service)* Pin imgcompress to a static version instead of latest
+- *(templates)* Bump databasus image version
+- Remove coolify-examples-1 submodule
+- Update pr-quality.yaml
+- *(versions)* Bump coolify, sentinel, and traefik versions
+- *(versions)* Bump sentinel to 0.0.21
+- Bump version to 4.0.0-beta.470
+- Prepare for PR
+- Prepare for PR
+- Prepare for PR
+- Prepare for PR
+- Prepare for PR
+- *(version)* Bump coolify, realtime, and sentinel versions
+- *(realtime)* Upgrade npm dependencies
+- *(realtime)* Upgrade coolify-realtime to 1.0.11
+- Prepare for PR
+- Prepare for PR
+- Prepare for PR
+- *(release)* Bump version to 4.0.0-beta.466
+- Prepare for PR
+- Prepare for PR
+- *(service)* Pin castopod service to a static version instead of latest
+- *(service)* Remove unused attributes on imgcompress service
+- *(service)* Pin imgcompress to a static version instead of latest
+- *(service)* Update SeaweedFS images to version 4.13 (#8738)
+- *(templates)* Bump databasus image version
+- Remove coolify-examples-1 submodule
+- Update pr-quality.yaml
+- *(versions)* Bump coolify, sentinel, and traefik versions
+- *(versions)* Bump sentinel to 0.0.21
+- *(service)* Disable Booklore service (#9105)
+- Bump version to 4.0.0-beta.470
 
 ## [4.0.0-beta.462] - 2026-01-16
 
