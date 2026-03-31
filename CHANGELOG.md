@@ -415,6 +415,7 @@ All notable changes to this project will be documented in this file.
 - *(proxy)* Validate stored config matches proxy type (#9146)
 - Update install command to use sudo
 - Enable shared servers by default and make local server accessible to all teams
+- Use correct raw.githubusercontent.com URL format
 
 ### 💼 Other
 
@@ -494,6 +495,7 @@ All notable changes to this project will be documented in this file.
 - *(sponsors)* Add ScreenshotOne as a huge sponsor
 - *(sponsors)* Update Brand.dev to Context.dev
 - *(readme)* Add PetroSky Cloud to sponsors
+- Update changelog
 - Update changelog
 - Update changelog
 - Update changelog
@@ -651,6 +653,7 @@ All notable changes to this project will be documented in this file.
 - *(service)* Disable Booklore service (#9105)
 - Bump version to 4.0.0-beta.470
 - Add coolify/versions.json for update notifications
+- Bump breezify version to 4.0.0-beta.470.a
 
 ## [4.0.0-beta.462] - 2026-01-16
 
