@@ -502,6 +502,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Document versioning scheme and fork maintenance in CLAUDE.md
 - Update changelog
+- Update changelog
 
 ### ⚡ Performance
 
@@ -658,6 +659,8 @@ All notable changes to this project will be documented in this file.
 - Add coolify/versions.json for update notifications
 - Bump breezify version to 4.0.0-beta.470.a
 - Bump version to 4.0.0-beta.470.b for update test
+- Use 471 for update test
+- Use 470.1 versioning for breezify fork
 
 ## [4.0.0-beta.462] - 2026-01-16
 
