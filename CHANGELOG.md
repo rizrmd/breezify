@@ -507,6 +507,8 @@ All notable changes to this project will be documented in this file.
 - Update versioning scheme to numeric suffix in CLAUDE.md
 - Update changelog
 - Update changelog
+- Update changelog
+- Add pre-built image process to CLAUDE.md
 
 ### ⚡ Performance
 
