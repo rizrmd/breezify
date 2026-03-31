@@ -288,15 +288,20 @@ class Server extends BaseModel
 
     /**
      * Scope servers accessible by team, optionally including shared servers when enabled.
+     * Local server (id=0) is always accessible to all teams.
      */
     public function scopeAccessibleByTeam(Builder $query, int $teamId): Builder
     {
-        if (! config('constants.coolify.shared_servers_enabled')) {
-            return $query->whereTeamId($teamId);
-        }
+        // Local server (id=0) is always accessible to all teams
+        $query->where(function ($q) use ($teamId) {
+            $q->where('id', 0);
+        })->orWhere(function ($q) use ($teamId) {
+            if (! config('constants.coolify.shared_servers_enabled')) {
+                $q->where('team_id', $teamId);
+                return;
+            }
 
-        return $query->where(function ($query) use ($teamId) {
-            $query->where('team_id', $teamId)
+            $q->where('team_id', $teamId)
                 ->orWhereHas('sharedTeams', function ($query) use ($teamId) {
                     $query->where('teams.id', $teamId);
                 });
