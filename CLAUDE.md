@@ -85,10 +85,13 @@ npm run build                   # production build
 ## Fork Maintenance (Breezify)
 
 ### Versioning Scheme
-Breezify versions use an alphabetic suffix to differentiate from upstream Coolify:
-- Format: `4.0.0-beta.470.a` (base version + suffix)
-- Suffix progression: `a`, `b`, ... `z`, `za`, `zb`, ... `zz`, `zza`, ...
-- Update `coolify/versions.json` (pushed to GitHub) AND `config/constants.php` version together
+Breezify versions use a numeric suffix to differentiate from upstream Coolify:
+- Format: `4.0.0-beta.470.1` (base version + numeric suffix)
+- The suffix indicates the nth breezify release based on upstream version
+- `4.0.0-beta.470.1` → first breezify release based on upstream `4.0.0-beta.470`
+- `4.0.0-beta.470.2` → second breezify release based on upstream `4.0.0-beta.470`
+- If upstream bumps to `4.0.0-beta.471`, breezify starts at `4.0.0-beta.471.1`
+- Update both `coolify/versions.json` AND `config/constants.php` version together
 
 ### Update Propagation
 For existing Breezify installations to receive update notifications:
