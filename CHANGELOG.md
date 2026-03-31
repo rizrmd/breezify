@@ -506,6 +506,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update versioning scheme to numeric suffix in CLAUDE.md
 - Update changelog
+- Update changelog
 
 ### ⚡ Performance
 
@@ -665,6 +666,7 @@ All notable changes to this project will be documented in this file.
 - Use 471 for update test
 - Use 470.1 versioning for breezify fork
 - Add upgrade.sh to coolify directory for auto-updates
+- Sync versions to 470.1 for upgrade test
 
 ## [4.0.0-beta.462] - 2026-01-16
 
