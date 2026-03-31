@@ -82,6 +82,22 @@ npm run build                   # production build
 - Development branch: `next`
 - PRs should target `v4.x`
 
+## Fork Maintenance (Breezify)
+
+### Versioning Scheme
+Breezify versions use an alphabetic suffix to differentiate from upstream Coolify:
+- Format: `4.0.0-beta.470.a` (base version + suffix)
+- Suffix progression: `a`, `b`, ... `z`, `za`, `zb`, ... `zz`, `zza`, ...
+- Update `coolify/versions.json` (pushed to GitHub) AND `config/constants.php` version together
+
+### Update Propagation
+For existing Breezify installations to receive update notifications:
+1. `CheckForUpdatesJob` fetches `versions_url` (from `config/constants.php`)
+2. Default URL: `https://raw.githubusercontent.com/rizrmd/breezify/v4.x/coolify/versions.json`
+3. File must exist at `coolify/versions.json` in repo root
+4. Compare `coolify.v4.version` in JSON against `config('constants.coolify.version')`
+5. If JSON version > local version, `new_version_available` is set to true
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
