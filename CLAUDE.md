@@ -101,6 +101,15 @@ For existing Breezify installations to receive update notifications:
 4. Compare `coolify.v4.version` in JSON against `config('constants.coolify.version')`
 5. If JSON version > local version, `new_version_available` is set to true
 
+### Pre-built Images (IMPORTANT)
+The Docker image MUST be built and pushed to GHCR before an upgrade can work:
+1. Update `coolify/versions.json` and `config/constants.php` to the new version (e.g., `4.0.0-beta.470.1`)
+2. Push to GitHub - this triggers `Production Build (v4)` workflow via GitHub Actions
+3. Wait for the CI build to complete and push the image to `ghcr.io/rizrmd/breezify:<version>`
+4. The upgrade process downloads and runs `upgrade.sh` which pulls `ghcr.io/rizrmd/breezify:<version>`
+5. If the image doesn't exist, upgrade fails with "Failed to pull" error
+6. To delete old images, use GitHub's GHCR cleanup workflow or manually via `docker manifest rm`
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
