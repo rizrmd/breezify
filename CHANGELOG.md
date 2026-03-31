@@ -496,6 +496,7 @@ All notable changes to this project will be documented in this file.
 - *(readme)* Add PetroSky Cloud to sponsors
 - Update changelog
 - Update changelog
+- Update changelog
 
 ### ⚡ Performance
 
@@ -649,6 +650,7 @@ All notable changes to this project will be documented in this file.
 - *(versions)* Bump sentinel to 0.0.21
 - *(service)* Disable Booklore service (#9105)
 - Bump version to 4.0.0-beta.470
+- Add coolify/versions.json for update notifications
 
 ## [4.0.0-beta.462] - 2026-01-16
 
