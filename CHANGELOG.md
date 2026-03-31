@@ -414,6 +414,7 @@ All notable changes to this project will be documented in this file.
 - *(parsers)* Preserve ${VAR} references in compose instead of resolving to DB values (#9147)
 - *(proxy)* Validate stored config matches proxy type (#9146)
 - Update install command to use sudo
+- Enable shared servers by default and make local server accessible to all teams
 
 ### 💼 Other
 
@@ -493,6 +494,7 @@ All notable changes to this project will be documented in this file.
 - *(sponsors)* Add ScreenshotOne as a huge sponsor
 - *(sponsors)* Update Brand.dev to Context.dev
 - *(readme)* Add PetroSky Cloud to sponsors
+- Update changelog
 - Update changelog
 
 ### ⚡ Performance
