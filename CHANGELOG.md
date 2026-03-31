@@ -503,6 +503,8 @@ All notable changes to this project will be documented in this file.
 - Document versioning scheme and fork maintenance in CLAUDE.md
 - Update changelog
 - Update changelog
+- Update changelog
+- Update versioning scheme to numeric suffix in CLAUDE.md
 
 ### ⚡ Performance
 
