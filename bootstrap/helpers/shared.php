@@ -4088,4 +4088,3 @@ function resolveSharedEnvironmentVariables(?string $value, $resource): ?string
 
     return str($value)->value();
 }
-}
