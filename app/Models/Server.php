@@ -293,7 +293,7 @@ class Server extends BaseModel
     public function scopeAccessibleByTeam(Builder $query, int $teamId): Builder
     {
         // Local server (id=0) is always accessible to all teams
-        $query->where(function ($q) use ($teamId) {
+        return $query->where(function ($q) use ($teamId) {
             $q->where('id', 0);
         })->orWhere(function ($q) use ($teamId) {
             if (! config('constants.coolify.shared_servers_enabled')) {
