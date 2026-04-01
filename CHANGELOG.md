@@ -416,6 +416,7 @@ All notable changes to this project will be documented in this file.
 - Update install command to use sudo
 - Enable shared servers by default and make local server accessible to all teams
 - Use correct raw.githubusercontent.com URL format
+- Add missing return statement in scopeAccessibleByTeam
 
 ### 💼 Other
 
@@ -509,6 +510,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - Add pre-built image process to CLAUDE.md
+- Update changelog
 - Update changelog
 
 ### ⚡ Performance
