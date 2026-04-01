@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🐛 Bug Fixes
+
+- Use createAndStore for SSH keys to persist on filesystem
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version to 4.0.0-beta.470.5
+
+## [4.0.0-beta.470.4] - 2026-04-01
+
 ### 🚀 Features
 
 - Always show check for updates button in sidebar
@@ -11,6 +21,7 @@ All notable changes to this project will be documented in this file.
 ### 📚 Documentation
 
 - Move CLAUDE.md and AGENTS.md into docs/ directory
+- Update changelog
 - Update changelog
 - Update changelog
 - Update changelog
