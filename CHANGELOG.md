@@ -512,6 +512,8 @@ All notable changes to this project will be documented in this file.
 - Add pre-built image process to CLAUDE.md
 - Update changelog
 - Update changelog
+- Update changelog
+- Explain that 0 means no limit in resource limits form
 
 ### ⚡ Performance
 
