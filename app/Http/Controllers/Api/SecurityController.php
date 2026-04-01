@@ -224,7 +224,7 @@ class SecurityController extends Controller
                 'message' => 'Private key already exists.',
             ], 422);
         }
-        $key = PrivateKey::create([
+        $key = PrivateKey::createAndStore([
             'team_id' => $teamId,
             'name' => $request->name,
             'description' => $request->description,

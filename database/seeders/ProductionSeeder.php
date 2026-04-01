@@ -82,7 +82,7 @@ class ProductionSeeder extends Seeder
                 if ($coolify_key) {
                     $user = str($coolify_key)->before('@')->after('id.');
                     $coolify_key = Storage::disk('ssh-keys')->get($coolify_key);
-                    PrivateKey::create([
+                    PrivateKey::createAndStore([
                         'id' => 0,
                         'team_id' => 0,
                         'name' => 'localhost\'s key',
