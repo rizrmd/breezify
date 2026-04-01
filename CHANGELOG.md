@@ -514,6 +514,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - Explain that 0 means no limit in resource limits form
+- Update changelog
 
 ### ⚡ Performance
 
@@ -676,6 +677,7 @@ All notable changes to this project will be documented in this file.
 - Sync versions to 470.1 for upgrade test
 - Branding - change Coolify to Breezify in sidebar
 - Bump version to 4.0.0-beta.470.2 for update test
+- Bump version to 4.0.0-beta.470.3
 
 ## [4.0.0-beta.462] - 2026-01-16
 
