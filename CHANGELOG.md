@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 📚 Documentation
+
+- Move CLAUDE.md and AGENTS.md into docs/ directory
+
+## [4.0.0-beta.470.3] - 2026-04-01
+
 ### 🚀 Features
 
 - Implement complete application backup and restore system
@@ -514,6 +520,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - Explain that 0 means no limit in resource limits form
+- Update changelog
 - Update changelog
 
 ### ⚡ Performance
