@@ -446,16 +446,16 @@
 
     @if ($current_step === 'resource-limits')
         <h2>Resource Limits</h2>
-        <div class="pb-4">Set required CPU and memory limits for this database.</div>
+        <div class="pb-4">Set CPU and memory limits for this database. Set to <span class="text-warning font-medium">0</span> for no limit.</div>
         <form wire:submit="submitResourceLimits" class="flex flex-col gap-6">
             <div class="flex flex-col gap-2">
                 <label class="flex items-center gap-2 text-sm font-medium">
                     Number of CPUs
-                    <span class="text-xs text-neutral-500">(max {{ $maxCpus }})</span>
+                    <span class="text-xs text-neutral-500">(max {{ $maxCpus }}, 0 = no limit)</span>
                 </label>
                 <div class="flex items-center gap-4">
                     <input type="range" min="0" max="{{ $maxCpus }}" step="0.1" wire:model.live="limitsCpus"
-                        class="w-full accent-purple-500" required />
+                        class="max-w-48 accent-purple-500" required />
                     <div class="w-24 text-right text-sm">
                         {{ number_format((float) $limitsCpus, 1) }}
                     </div>
@@ -464,11 +464,11 @@
             <div class="flex flex-col gap-2">
                 <label class="flex items-center gap-2 text-sm font-medium">
                     Maximum Memory Limit (GB)
-                    <span class="text-xs text-neutral-500">(max {{ $maxMemoryGb }})</span>
+                    <span class="text-xs text-neutral-500">(max {{ $maxMemoryGb }} GB, 0 = no limit)</span>
                 </label>
                 <div class="flex items-center gap-4">
                     <input type="range" min="0" max="{{ $maxMemoryGb }}" step="0.1" wire:model.live="limitsMemory"
-                        class="w-full accent-purple-500" required />
+                        class="max-w-48 accent-purple-500" required />
                     <div class="w-24 text-right text-sm">
                         {{ number_format((float) $limitsMemory, 1) }}
                     </div>
