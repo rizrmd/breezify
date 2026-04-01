@@ -17,7 +17,7 @@ Typical flow: Livewire interaction → Form Request validation → Action class 
 - `resources/` — Blade views, CSS/JS (Vite entrypoints).
 - `templates/compose/` — service templates (Docker Compose definitions).
 - `docker/` — Dockerfiles and dev tooling.
-From `CLAUDE.md` and `scripts/run`:
+From `docs/CLAUDE.md` and `scripts/run`:
 # Dev environment
 spin up                             # or: docker compose -f docker-compose.dev.yml up -d
 spin down
