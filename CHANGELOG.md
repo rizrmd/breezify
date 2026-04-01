@@ -509,6 +509,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog
 - Update changelog
 - Add pre-built image process to CLAUDE.md
+- Update changelog
 
 ### ⚡ Performance
 
@@ -669,6 +670,8 @@ All notable changes to this project will be documented in this file.
 - Use 470.1 versioning for breezify fork
 - Add upgrade.sh to coolify directory for auto-updates
 - Sync versions to 470.1 for upgrade test
+- Branding - change Coolify to Breezify in sidebar
+- Bump version to 4.0.0-beta.470.2 for update test
 
 ## [4.0.0-beta.462] - 2026-01-16
 
