@@ -79,7 +79,7 @@
     }">
     <div class="flex lg:pt-6 pt-4 pb-4 pl-2">
         <div class="flex flex-col w-full">
-            <a href="/" {{ wireNavigate() }} class="text-2xl font-bold tracking-wide dark:text-white hover:opacity-80 transition-opacity">Coolify</a>
+            <a href="https://github.com/rizrmd/breezify" target="_blank" {{ wireNavigate() }} class="text-2xl font-bold tracking-wide dark:text-white hover:opacity-80 transition-opacity">Breezify</a>
             <x-version />
         </div>
         <div>
