@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 - Move CLAUDE.md and AGENTS.md into docs/ directory
 - Update changelog
+- Update changelog
 
 ## [4.0.0-beta.470.3] - 2026-04-01
 
